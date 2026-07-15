@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <link rel="icon" type="image/png" href="icone.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Le Culte du Caillou</title>
+    <style>
+        :root {
+            --intensity: 0;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background: radial-gradient(circle, #24242d 0%, #0d0d11 100%);
+            color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            user-select: none;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        /* --- CLASSE POUR LE MODE CLAIR --- */
+        body.light-mode {
+            background: radial-gradient(circle, #f0f0f5 0%, #dcdce5 100%);
+            color: #1c1c24;
+        }
+
+        /* Conteneur principal */
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            height: 85vh;
+            width: 100%;
+        }
+
+        /* Titre discret en haut */
+        h1 {
+            font-size: 1.5rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #8a8a9e;
+            margin: 0;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+            transition: color 0.3s ease;
+        }
+        body.light-mode h1 {
+            color: #4a4a5a;
+        }
+
+        /* Zone centrale du caillou */
+        .caillou-wrapper {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-grow: 1;
+        }
+
+        /* Effet d'aura derrière le caillou qui grandit avec le score */
+        .halo {
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, rgba(0,0,0,0) 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            transition: transform 0.3s ease;
+            z-index: 1;
+        }
+        body.light-mode .halo {
+            background: radial-gradient(circle, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0) 70%);
+        }
+
+        .caillou-img {
+            max-width: 350px;
+            height: auto;
+            cursor: pointer;
+            z-index: 2;
+            transition: transform 0.05s ease;
+            filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.6));
+            -webkit-user-drag: none;
+        }
+
+        /* Animation de clic (enfoncement rapide) */
+        .caillou-img:active {
+            transform: scale(0.93) rotate(-1deg);
+        }
+
+        /* Effet d'envol du +1 */
+        .plus-one {
+            position: absolute;
+            color: #ffffff;
+            font-weight: bold;
+            font-size: 1.8rem;
+            pointer-events: none;
+            animation: floatUp 0.8s ease-out forwards;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            z-index: 10;
+        }
+        body.light-mode .plus-one {
+            color: #1c1c24;
+            text-shadow: 0 2px 4px rgba(255,255,255,0.6);
+        }
+
+        @keyframes floatUp {
+            0% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-120px) scale(0.8);
+            }
+        }
+
+        /* Fenêtre du bas (Statut et Rang) */
+        .status-panel {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            padding: 20px 40px;
+            border-radius: 16px;
+            text-align: center;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+            max-width: 80%;
+            min-width: 300px;
+            margin-bottom: 20px;
+            transition: background 0.3s, border 0.3s;
+        }
+        body.light-mode .status-panel {
+            background: rgba(0, 0, 0, 0.03);
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        }
+
+        .click-count {
+            font-size: 1.1rem;
+            color: #a5a5b5;
+            margin-bottom: 10px;
+            transition: color 0.3s;
+        }
+        body.light-mode .click-count {
+            color: #5a5a6a;
+        }
+
+        .click-count span {
+            color: #ffffff;
+            font-weight: bold;
+            font-size: 1.3rem;
+            transition: color 0.3s;
+        }
+        body.light-mode .click-count span {
+            color: #1c1c24;
+        }
+
+        .rank-text {
+            font-size: 1.4rem;
+            color: #e2e2e8;
+            margin: 0;
+            transition: color 0.3s;
+        }
+        body.light-mode .rank-text {
+            color: #2c2c35;
+        }
+
+        /* Le nom du rang qui tremble */
+        .rank-name {
+            display: inline-block;
+            font-weight: 800;
+            color: #ffb703;
+            text-shadow: 0 0 8px rgba(255, 183, 3, 0.3);
+            animation: shake 0.2s infinite linear;
+        }
+
+        /* Keyframes pour le tremblement dynamique */
+        @keyframes shake {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            10% { transform: translate(calc(-0.5px * var(--intensity)), calc(-0.5px * var(--intensity))) rotate(calc(-0.2deg * var(--intensity))); }
+            20% { transform: translate(calc(0.5px * var(--intensity)), calc(-0.5px * var(--intensity))) rotate(calc(0.2deg * var(--intensity))); }
+            30% { transform: translate(calc(-0.5px * var(--intensity)), calc(0.5px * var(--intensity))) rotate(calc(-0.2deg * var(--intensity))); }
+            40% { transform: translate(calc(0.5px * var(--intensity)), calc(0.5px * var(--intensity))) rotate(calc(0.2deg * var(--intensity))); }
+            50% { transform: translate(calc(-0.5px * var(--intensity)), calc(-0.5px * var(--intensity))) rotate(calc(-0.2deg * var(--intensity))); }
+            60% { transform: translate(calc(0.5px * var(--intensity)), calc(-0.5px * var(--intensity))) rotate(calc(0.2deg * var(--intensity))); }
+            70% { transform: translate(calc(-0.5px * var(--intensity)), calc(0.5px * var(--intensity))) rotate(calc(-0.2deg * var(--intensity))); }
+            80% { transform: translate(calc(0.5px * var(--intensity)), calc(0.5px * var(--intensity))) rotate(calc(0.2deg * var(--intensity))); }
+            90% { transform: translate(calc(-0.5px * var(--intensity)), calc(-0.5px * var(--intensity))) rotate(calc(-0.2deg * var(--intensity))); }
+            100% { transform: translate(0, 0) rotate(0deg); }
+        }
+
+        /* Bouton de réinitialisation discret */
+        .reset-btn {
+            position: absolute;
+            bottom: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            color: #4a4a5a;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: color 0.2s;
+        }
+        .reset-btn:hover {
+            color: #ff4d4d;
+        }
+        body.light-mode .reset-btn {
+            color: #8a8a9e;
+        }
+        body.light-mode .reset-btn:hover {
+            color: #ff4d4d;
+        }
+
+        /* --- STYLES DE LA BOUTIQUE --- */
+        
+        /* Bouton pour ouvrir la boutique */
+        .shop-toggle-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            backdrop-filter: blur(5px);
+            transition: background 0.2s, transform 0.1s, color 0.3s, border 0.3s;
+            z-index: 90;
+        }
+        .shop-toggle-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: scale(1.05);
+        }
+        body.light-mode .shop-toggle-btn {
+            background: rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            color: #1c1c24;
+        }
+        body.light-mode .shop-toggle-btn:hover {
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        /* Panneau coulissant de la boutique */
+        .shop-sidebar {
+            position: fixed;
+            top: 0;
+            right: -320px; /* Caché par défaut */
+            width: 300px;
+            max-width: 85%;
+            height: 100%;
+            background: rgba(13, 13, 17, 0.95);
+            border-left: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: -10px 0 30px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(15px);
+            transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s;
+            z-index: 100;
+            padding: 30px 20px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .shop-sidebar.open {
+            right: 0;
+        }
+        body.light-mode .shop-sidebar {
+            background: rgba(240, 240, 245, 0.98);
+            border-left: 1px solid rgba(0, 0, 0, 0.08);
+            box-shadow: -10px 0 30px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Bouton pour fermer la boutique */
+        .shop-close-btn {
+            align-self: flex-end;
+            background: none;
+            border: none;
+            color: #8a8a9e;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .shop-close-btn:hover {
+            color: #ffffff;
+        }
+        body.light-mode .shop-close-btn:hover {
+            color: #1c1c24;
+        }
+
+        .shop-title {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #ffb703;
+            margin-bottom: 5px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        body.light-mode .shop-title {
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .shop-items {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+
+        /* Un article de la boutique */
+        .shop-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            transition: background 0.2s, border-color 0.2s;
+        }
+        .shop-item:hover {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+        body.light-mode .shop-item {
+            background: rgba(0, 0, 0, 0.02);
+            border: 1px solid rgba(0, 0, 0, 0.06);
+        }
+        body.light-mode .shop-item:hover {
+            background: rgba(0, 0, 0, 0.04);
+            border-color: rgba(0, 0, 0, 0.1);
+        }
+
+        .item-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .item-name {
+            font-weight: bold;
+            font-size: 1.05rem;
+            color: #ffffff;
+            transition: color 0.3s;
+        }
+        body.light-mode .item-name {
+            color: #1c1c24;
+        }
+
+        .item-desc {
+            font-size: 0.8rem;
+            color: #a5a5b5;
+            line-height: 1.2;
+            transition: color 0.3s;
+        }
+        body.light-mode .item-desc {
+            color: #5a5a6a;
+        }
+
+        /* Bouton d'achat */
+        .buy-btn {
+            background: #ffb703;
+            color: #0d0d11;
+            border: none;
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.2s, transform 0.1s;
+        }
+        .buy-btn:hover:not(:disabled) {
+            background: #ffc83b;
+            transform: translateY(-1px);
+        }
+        .buy-btn:active:not(:disabled) {
+            transform: translateY(0);
+        }
+        .buy-btn:disabled {
+            background: #252530;
+            color: #5a5a6a;
+            cursor: not-allowed;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+        }
+        body.light-mode .buy-btn:disabled {
+            background: #e2e2e8;
+            color: #a5a5b5;
+            border: 1px solid rgba(0, 0, 0, 0.03);
+        }
+
+        /* STYLE DE L'EASTER EGG */
+        .easter-egg-msg {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            font-size: 3.5rem;
+            font-weight: 900;
+            color: #ff4d4d;
+            text-shadow: 0 0 20px #ff4d4d, 0 0 40px #ffb703;
+            z-index: 200;
+            pointer-events: none;
+            transition: transform 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.15s;
+            opacity: 0;
+            text-transform: uppercase;
+            text-align: center;
+            white-space: nowrap;
+            font-style: italic;
+        }
+        .easter-egg-msg.active {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+            animation: pulse-msg 0.4s infinite alternate;
+        }
+        @keyframes pulse-msg {
+            0% { transform: translate(-50%, -50%) scale(1); }
+            100% { transform: translate(-50%, -50%) scale(1.1); }
+        }
+
+        /* --- STYLES DU LEVIER DE TRADUCTION DE MODE (AJOUTÉ) --- */
+        .lever-container {
+            position: absolute;
+            bottom: 15px;
+            left: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #8a8a9e;
+            font-size: 0.85rem;
+            font-weight: bold;
+            z-index: 90;
+            transition: color 0.3s;
+        }
+        body.light-mode .lever-container {
+            color: #4a4a5a;
+        }
+        .switch-lever {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 26px;
+        }
+        .switch-lever input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .lever-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #252530;
+            transition: 0.3s;
+            border-radius: 34px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .lever-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 4px;
+            bottom: 3px;
+            background-color: #8a8a9e;
+            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 50%;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+        .switch-lever input:checked + .lever-slider {
+            background-color: #ffb703;
+            border-color: rgba(0, 0, 0, 0.05);
+        }
+        .switch-lever input:checked + .lever-slider:before {
+            transform: translateX(22px);
+            background-color: #ffffff;
+        }
+        body.light-mode .lever-slider {
+            background-color: #dcdce5;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Élément Audio caché -->
+    <audio id="lightModeSound" src="son.mp3" preload="auto"></audio>
+    <audio id="resetSound" src="taco-bell-bong-sfx.mp3" preload="auto"></audio>
+
+    <!-- Message de l'Easter Egg -->
+    <div class="easter-egg-msg" id="easterEgg">WOW TU CLIQUES VITE !!!</div>
+
+    <!-- Bouton d'ouverture de la boutique -->
+    <button class="shop-toggle-btn" id="shopToggle">Boutique 🛒</button>
+
+    <!-- Menu de la boutique -->
+    <div class="shop-sidebar" id="shopSidebar">
+        <button class="shop-close-btn" id="shopClose">✕</button>
+        <div class="shop-title">Boutique Divine</div>
+        
+        <div class="shop-items">
+            <!-- Power-up 1 -->
+            <div class="shop-item">
+                <div class="item-info">
+                    <span class="item-name">Super Pioche</span>
+                    <span class="item-desc">Augmente la puissance de chaque clic de <b>+1</b>.<br>(Niveau : <span id="up1-lvl">0</span>)</span>
+                </div>
+                <button class="buy-btn" id="buy-up1">Acheter : <span id="up1-cost">30</span> clics</button>
+            </div>
+
+            <!-- Power-up 2 -->
+            <div class="shop-item">
+                <div class="item-info">
+                    <span class="item-name">Forgeron de la Roche</span>
+                    <span class="item-desc">Ajoute un immense boost de <b>+5</b> par clic.<br>(Niveau : <span id="up2-lvl">0</span>)</span>
+                </div>
+                <button class="buy-btn" id="buy-up2">Acheter : <span id="up2-cost">150</span> clics</button>
+            </div>
+
+            <!-- Power-up 3 (Auto-clicker) -->
+            <div class="shop-item">
+                <div class="item-info">
+                    <span class="item-name">Esprit du Caillou</span>
+                    <span class="item-desc">Génère automatiquement <b>+1</b> clic chaque seconde.<br>(Niveau : <span id="up3-lvl">0</span>)</span>
+                </div>
+                <button class="buy-btn" id="buy-up3">Acheter : <span id="up3-cost">100</span> clics</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="game-container">
+        <h1>Le Temple du caillou</h1>
+
+        <div class="caillou-wrapper">
+            <div class="halo" id="halo"></div>
+            <img src="caillou.png" alt="le caillou" class="caillou-img" id="caillou" title="Cliquez pour honorer le caillou !">
+        </div>
+
+        <div class="status-panel">
+            <div class="click-count">Vous avez cliqué <span id="counter">0</span> fois sur le caillou.</div>
+            <p class="rank-text">Vous êtes : <span class="rank-name" id="rank">Nouveau né</span></p>
+        </div>
+    </div>
+
+    <!-- Levier Thème Sombre / Clair (AJOUTÉ) -->
+    <div class="lever-container">
+        <span id="leverLabel">Mode Sombre</span>
+        <label class="switch-lever">
+            <input type="checkbox" id="themeToggle">
+            <span class="lever-slider"></span>
+        </label>
+    </div>
+
+    <button class="reset-btn" id="reset">Réinitialiser</button>
+
+    <script>
+        //son taco bell
+        const resetSound = document.getElementById('resetSound');
+        
+        // Récupération des éléments DOM
+        const caillou = document.getElementById('caillou');
+        const counterEl = document.getElementById('counter');
+        const rankEl = document.getElementById('rank');
+        const halo = document.getElementById('halo');
+        const resetBtn = document.getElementById('reset');
+        const easterEggEl = document.getElementById('easterEgg');
+        
+        // Éléments du levier et du son (AJOUTÉS)
+        const themeToggle = document.getElementById('themeToggle');
+        const lightModeSound = document.getElementById('lightModeSound');
+        const leverLabel = document.getElementById('leverLabel');
+
+        // Éléments de la boutique
+        const shopToggle = document.getElementById('shopToggle');
+        const shopSidebar = document.getElementById('shopSidebar');
+        const shopClose = document.getElementById('shopClose');
+
+        // Variables de jeu principales
+        let clicks = parseInt(localStorage.getItem('caillou_clicks')) || 0;
+        let clickPower = parseInt(localStorage.getItem('caillou_clickPower')) || 1;
+        let autoClicks = parseInt(localStorage.getItem('caillou_autoClicks')) || 0;
+
+        // Tableau pour suivre les timestamps des clics (Easter egg)
+        let clickTimestamps = [];
+
+        // Niveaux des améliorations
+        let up1Lvl = parseInt(localStorage.getItem('caillou_up1_lvl')) || 0;
+        let up2Lvl = parseInt(localStorage.getItem('caillou_up2_lvl')) || 0;
+        let up3Lvl = parseInt(localStorage.getItem('caillou_up3_lvl')) || 0;
+
+        // Calcul dynamique des coûts des améliorations
+        const getUp1Cost = () => Math.round(30 * Math.pow(1.5, up1Lvl));
+        const getUp2Cost = () => Math.round(150 * Math.pow(1.6, up2Lvl));
+        const getUp3Cost = () => Math.round(100 * Math.pow(1.5, up3Lvl));
+
+        // Configuration des rangs[cite: 3]
+        const ranks = [
+            { limit: 0, name: "Poussière", intensity: 0 },
+            { limit: 10, name: "Apprenti Caillou", intensity: 0.5 },
+            { limit: 20, name: "Assistant Caillou", intensity: 1 },
+            { limit: 40, name: "Serviteur Caillou", intensity: 1.5 },
+            { limit: 80, name: "Gardien Caillou", intensity: 2 },
+            { limit: 160, name: "Second Caillou", intensity: 3 },
+            { limit: 320, name: "Souverain Caillou", intensity: 5 },
+            { limit: 640, name: "Roi Caillou", intensity: 8 },
+            { limit: 1150, name: "Empereur des cailloux", intensity: 14 },
+            { limit: 1840, name: "Seigneur caillou", intensity: 28 },
+            { limit: 2760, name: "Divinité des cailloux", intensity: 22 },
+            { limit: 3860, name: "Titan de cailloux", intensity: 26 },
+            { limit: 5000, name: "Caillou sacré", intensity: 38 },
+            { limit: 6000, name: "Le Caillou Ultime 🌌", intensity: 39 },
+            { limit: 8500, name: "Le caillou singenieur", intensity: 52 },
+            { limit: 12000, name: "caillou cosmique", intensity: 67 },
+            { limit: 17000, name: "Maître de la Galaxie de caillou 🌌", intensity: 72 },
+            { limit: 25000, name: "l'art du caillou", intensity: 80 },
+            { limit: 40000, name: "le big bang caillouteux (oui c'est francais)", intensity: 99 }
+        ];
+
+        // Sauvegarder toute la progression
+        function saveGame() {
+            localStorage.setItem('caillou_clicks', clicks);
+            localStorage.setItem('caillou_clickPower', clickPower);
+            localStorage.setItem('caillou_autoClicks', autoClicks);
+            localStorage.setItem('caillou_up1_lvl', up1Lvl);
+            localStorage.setItem('caillou_up2_lvl', up2Lvl);
+            localStorage.setItem('caillou_up3_lvl', up3Lvl);
+        }
+
+        // Mettre à jour la boutique (boutons désactivés/coûts)
+        function updateShop() {
+            document.getElementById('up1-lvl').textContent = up1Lvl;
+            document.getElementById('up2-lvl').textContent = up2Lvl;
+            document.getElementById('up3-lvl').textContent = up3Lvl;
+
+            const cost1 = getUp1Cost();
+            const cost2 = getUp2Cost();
+            const cost3 = getUp3Cost();
+
+            document.getElementById('up1-cost').textContent = cost1;
+            document.getElementById('up2-cost').textContent = cost2;
+            document.getElementById('up3-cost').textContent = cost3;
+
+            document.getElementById('buy-up1').disabled = clicks < cost1;
+            document.getElementById('buy-up2').disabled = clicks < cost2;
+            document.getElementById('buy-up3').disabled = clicks < cost3;
+        }
+
+        // Mettre à jour l'affichage général
+        function updateDisplay() {
+            counterEl.textContent = clicks;
+
+            // Trouver le rang correspondant
+            let currentRank = ranks[0];
+            for (let i = 0; i < ranks.length; i++) {
+                if (clicks >= ranks[i].limit) {
+                    currentRank = ranks[i];
+                } else {
+                    break;
+                }
+            }
+
+            // Appliquer le texte et l'intensité du tremblement
+            rankEl.textContent = currentRank.name;
+            document.documentElement.style.setProperty('--intensity', currentRank.intensity);
+
+            // Ajuster l'effet d'aura
+            const scaleFactor = 1 + Math.min(clicks / 1000, 1.5); 
+            halo.style.transform = `scale(${scaleFactor})`;
+
+            // Met à jour l'état des boutons de la boutique à chaque changement de score
+            updateShop();
+        }
+
+        // Gérer le clic sur le caillou
+        caillou.addEventListener('mousedown', (e) => {
+            clicks += clickPower; 
+            saveGame();
+            updateDisplay();
+            createFloatEffect(e.clientX, e.clientY, clickPower);
+
+            // Enregistrer le timestamp du clic pour le calcul des CPS
+            clickTimestamps.push(Date.now());
+        });
+
+        // Effet de particule qui s'envole au clic
+        function createFloatEffect(x, y, value) {
+            const plusOne = document.createElement('div');
+            plusOne.className = 'plus-one';
+            plusOne.textContent = '+' + value;
+            
+            const offsetX = (Math.random() - 0.5) * 20;
+            plusOne.style.left = `${x + offsetX - 15}px`;
+            plusOne.style.top = `${y - 30}px`;
+
+            document.body.appendChild(plusOne);
+
+            setTimeout(() => {
+                plusOne.remove();
+            }, 800);
+        }
+
+        // --- GESTION DE LA BOUTIQUE ---
+
+        // Ouvrir / Fermer le menu
+        shopToggle.addEventListener('click', () => {
+            shopSidebar.classList.add('open');
+        });
+        shopClose.addEventListener('click', () => {
+            shopSidebar.classList.remove('open');
+        });
+
+        // Achat Amélioration 1 (Super Pioche)
+        document.getElementById('buy-up1').addEventListener('click', () => {
+            const cost = getUp1Cost();
+            if (clicks >= cost) {
+                clicks -= cost;
+                up1Lvl++;
+                clickPower += 1;
+                saveGame();
+                updateDisplay();
+            }
+        });
+
+        // Achat Amélioration 2 (Forgeron de la Roche)
+        document.getElementById('buy-up2').addEventListener('click', () => {
+            const cost = getUp2Cost();
+            if (clicks >= cost) {
+                clicks -= cost;
+                up2Lvl++;
+                clickPower += 5;
+                saveGame();
+                updateDisplay();
+            }
+        });
+
+        // Achat Amélioration 3 (Esprit du Caillou - Auto Clicker)
+        document.getElementById('buy-up3').addEventListener('click', () => {
+            const cost = getUp3Cost();
+            if (clicks >= cost) {
+                clicks -= cost;
+                up3Lvl++;
+                autoClicks += 1;
+                saveGame();
+                updateDisplay();
+            }
+        });
+
+        // Boucle de vérification permanente (Auto-clicker & Easter Egg)[cite: 3]
+        setInterval(() => {
+            const now = Date.now();
+
+            // 1. Gérer l'auto-clicker[cite: 3]
+            if (autoClicks > 0) {
+                clicks += (autoClicks / 10);
+                if (Math.random() < (autoClicks / 10) % 1) {
+                    clicks = Math.ceil(clicks);
+                } else {
+                    clicks = Math.floor(clicks);
+                }
+                saveGame();
+                updateDisplay();
+            }
+
+            // 2. Vérification des clics par seconde (Easter Egg)[cite: 3]
+            clickTimestamps = clickTimestamps.filter(t => now - t < 1000);
+            
+            if (clickTimestamps.length >= 6) {
+                easterEggEl.classList.add('active');
+            } else {
+                easterEggEl.classList.remove('active');
+            }
+        }, 100);
+
+        // --- GESTION DU LEVIER CLAIR / SOMBRE (AJOUTÉ) ---
+        themeToggle.addEventListener('change', () => {
+            if (themeToggle.checked) {
+                document.body.classList.add('light-mode');
+                leverLabel.textContent = "Mode Clair";
+                
+                // Relance le son depuis le début et le joue
+                lightModeSound.currentTime = 0;
+                lightModeSound.play().catch(err => {
+                    console.log("Lecture du son bloquée par le navigateur : ", err);
+                });
+            } else {
+                document.body.classList.remove('light-mode');
+                leverLabel.textContent = "Mode Sombre";
+            }
+        });
+
+        // Bouton de réinitialisation
+        resetBtn.addEventListener('click', () => {
+            if (confirm("Voulez-vous vraiment redevenir une simple poussière (et perdre TOUTES vos améliorations) ?")) {
+               // --- JOUE LE SON TACO BELL ICI ---
+        resetSound.currentTime = 0;
+        resetSound.play().catch(err => console.log("Audio bloqué :", err));
+        // ----------------------- 
+                clicks = 0;
+                clickPower = 1;
+                autoClicks = 0;
+                up1Lvl = 0;
+                up2Lvl = 0;
+                up3Lvl = 0;
+                saveGame();
+                updateDisplay();
+            }
+        });
+                
+
+        // Initialisation au chargement
+        updateDisplay();
+    </script>
+</body>
+</html>
