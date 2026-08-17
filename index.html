@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Le Culte du Caillou</title>
     
-    <h1>le site est en phase de test (implementation d'un chat en ligne)</h1>
+    <h6>phase beta du chat</h6>
     
     <style>
     /* STYLES MODALE CHAT */
@@ -248,6 +248,11 @@
 
     chatToggle.addEventListener('click', () => {
       chatModal.classList.add('open');
+      // Scroll vers le bas du chat
+      setTimeout(() => {
+        const chatBox = document.getElementById('chat-box');
+        chatBox.scrollTop = chatBox.scrollHeight;
+      }, 50);
     });
 
     chatClose.addEventListener('click', () => {
