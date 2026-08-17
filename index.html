@@ -138,6 +138,20 @@
       padding: 15px;
       background: #fff;
       border-top: 1px solid #ddd;
+      flex-direction: column;
+    }
+
+    .chat-warning {
+      font-size: 0.8rem;
+      color: #ff6b6b;
+      margin-bottom: 8px;
+      font-weight: 500;
+      min-height: 18px;
+    }
+
+    .chat-input-wrapper {
+      display: flex;
+      gap: 8px;
     }
 
     .chat-input-section input[type="text"] {
@@ -230,8 +244,11 @@
 
       <!-- Zone d'input du chat -->
       <div class="chat-input-section">
-        <input type="text" id="message-input" placeholder="Écris ton message..." onkeypress="if(event.key==='Enter') envoyerMessage()">
-        <button onclick="envoyerMessage()">Envoyer</button>
+        <div class="chat-warning" id="chatWarning"></div>
+        <div class="chat-input-wrapper">
+          <input type="text" id="message-input" placeholder="Écris ton message..." onkeypress="if(event.key==='Enter') envoyerMessage()">
+          <button onclick="envoyerMessage()">Envoyer</button>
+        </div>
       </div>
     </div>
   </div>
@@ -304,31 +321,62 @@
     }
 
     // 3. ENVOYER UN MESSAGE
+    let lastMessageTime = 0;
+    const SPAM_COOLDOWN = 3000; // 3 secondes
+
     function envoyerMessage() {
       const input = document.getElementById('message-input');
+      const warningEl = document.getElementById('chatWarning');
       const texte = input.value.trim();
 
-      if (texte !== "") {
-        // On pousse le message dans le chemin "messages/"
-        database.ref('messages').push({
-          auteur: monPseudo,
-          texte: texte,
-          timestamp: Date.now()
-        });
-        input.value = "";
+      // Réinitialiser le message d'avertissement
+      warningEl.textContent = '';
+
+      // Vérifier si le message est vide
+      if (texte === "") {
+        warningEl.textContent = "Envoie des vrais messages";
+        return;
       }
+
+      // Vérifier le cooldown de 3 secondes
+      const now = Date.now();
+      if (now - lastMessageTime < SPAM_COOLDOWN) {
+        const timeRemaining = Math.ceil((SPAM_COOLDOWN - (now - lastMessageTime)) / 1000);
+        warningEl.textContent = `Attends ${timeRemaining}s avant d'envoyer un autre message`;
+        return;
+      }
+
+      // Mettre à jour le timestamp du dernier message
+      lastMessageTime = now;
+
+      // On pousse le message dans le chemin "messages/"
+      database.ref('messages').push({
+        auteur: monPseudo,
+        texte: texte,
+        timestamp: Date.now()
+      });
+      input.value = "";
     }
 
     // 4. RECEVOIR LES MESSAGES EN TEMPS RÉEL
     const chatBox = document.getElementById('chat-box');
 
+    // Fonction pour formater l'heure
+    function formatTime(timestamp) {
+      const date = new Date(timestamp);
+      const hours = String(date.getHours()).padStart(2, '0');
+      const minutes = String(date.getMinutes()).padStart(2, '0');
+      return `${hours}:${minutes}`;
+    }
+
     // Écoute les nouveaux messages ajoutés
     database.ref('messages').limitToLast(50).on('child_added', (snapshot) => {
       const msg = snapshot.val();
+      const time = formatTime(msg.timestamp);
       
       const msgElement = document.createElement('div');
       msgElement.className = 'message';
-      msgElement.innerHTML = `<span class="author">${msg.auteur} :</span> ${msg.texte}`;
+      msgElement.innerHTML = `<span class="author">${msg.auteur} <span style="font-size: 0.85rem; color: #999; font-weight: normal;">${time}</span></span> ${msg.texte}`;
       
       chatBox.appendChild(msgElement);
       // Auto-scroll vers le bas
