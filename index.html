@@ -732,6 +732,55 @@
             localStorage.setItem('caillou_up3_lvl', up3Lvl);
         }
 
+        // Commandes disponibles dans la console du navigateur
+        window.caillouCheats = {
+            addPoints(amount = 1000) {
+                clicks += Number(amount) || 0;
+                saveGame();
+                updateDisplay();
+                return clicks;
+            },
+            setPoints(amount = 0) {
+                clicks = Number(amount) || 0;
+                saveGame();
+                updateDisplay();
+                return clicks;
+            },
+            addPower(amount = 1) {
+                clickPower += Number(amount) || 0;
+                saveGame();
+                updateDisplay();
+                return clickPower;
+            },
+            addAuto(amount = 1) {
+                autoClicks += Number(amount) || 0;
+                saveGame();
+                updateDisplay();
+                return autoClicks;
+            },
+            reset() {
+                clicks = 0;
+                clickPower = 1;
+                autoClicks = 0;
+                up1Lvl = 0;
+                up2Lvl = 0;
+                up3Lvl = 0;
+                saveGame();
+                updateDisplay();
+                return 'Le caillou a été réinitialisé.';
+            },
+            status() {
+                return {
+                    clicks,
+                    clickPower,
+                    autoClicks,
+                    up1Lvl,
+                    up2Lvl,
+                    up3Lvl
+                };
+            }
+        };
+
         // Mettre à jour la boutique (boutons désactivés/coûts)
         function updateShop() {
             document.getElementById('up1-lvl').textContent = up1Lvl;
