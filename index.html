@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Le Culte du Caillou</title>
     
-    <h6>phase beta du chat</h6>
+    <h6>phase bêta du chat</h6>
     
     <style>
     /* STYLES MODALE CHAT */
@@ -535,10 +535,11 @@
     database.ref('messages').limitToLast(50).on('child_added', (snapshot) => {
       const msg = snapshot.val();
       const time = formatTime(msg.timestamp);
+      const badge = getChatRankBadge(msg.auteur || '');
       
       const msgElement = document.createElement('div');
       msgElement.className = 'message';
-      msgElement.innerHTML = `<span class="author">${msg.auteur} <span style="font-size: 0.85rem; color: #999; font-weight: normal;">${time}</span></span> ${msg.texte}`;
+      msgElement.innerHTML = `<span class="author">${msg.auteur}${badge} <span style="font-size: 0.85rem; color: #999; font-weight: normal;">${time}</span></span> ${msg.texte}`;
       
       chatBox.appendChild(msgElement);
       // Auto-scroll vers le bas
@@ -546,11 +547,6 @@
     });
   </script>
 
-    
-    
-    
-    
-    
     <style>
         :root {
             --intensity: 0;
@@ -1131,6 +1127,314 @@
                 padding: 12px 15px;
             }
         }
+
+        /* --- CLASSEMENT HEBDOMADAIRE --- */
+        .leaderboard-toggle-btn {
+            position: absolute;
+            top: 20px;
+            right: 200px;
+            background: rgba(255, 183, 3, 0.12);
+            border: 1px solid rgba(255, 183, 3, 0.3);
+            color: #ffb703;
+            border-radius: 50%;
+            width: 46px;
+            height: 46px;
+            cursor: pointer;
+            font-size: 1.4rem;
+            z-index: 90;
+            transition: transform 0.2s ease, background 0.2s ease;
+        }
+
+        .leaderboard-toggle-btn:hover {
+            transform: scale(1.08);
+            background: rgba(255, 183, 3, 0.2);
+        }
+
+        .leaderboard-modal {
+            position: fixed;
+            inset: 0;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 200;
+            padding: 20px;
+        }
+
+        .leaderboard-modal.open {
+            display: flex;
+        }
+
+        .leaderboard-modal-content {
+            width: min(540px, 94vw);
+            background: rgba(18, 18, 24, 0.96);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 18px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            overflow: hidden;
+        }
+
+        body.light-mode .leaderboard-modal-content {
+            background: rgba(255, 255, 255, 0.96);
+            border: 1px solid rgba(0, 0, 0, 0.08);
+        }
+
+        .leaderboard-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 18px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            background: linear-gradient(135deg, rgba(255,183,3,0.12), rgba(255,255,255,0.02));
+        }
+
+        body.light-mode .leaderboard-header {
+            border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+        }
+
+        .leaderboard-logo-btn {
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            background: rgba(255, 183, 3, 0.18);
+            border: 1px solid rgba(255, 183, 3, 0.25);
+            font-size: 1.8rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: -15px;
+        }
+
+        .leaderboard-header h2 {
+            margin: 0;
+            font-size: 1.2rem;
+            color: #fff;
+        }
+
+        body.light-mode .leaderboard-header h2 {
+            color: #1c1c24;
+        }
+
+        .leaderboard-status {
+            color: #a5a5b5;
+            font-size: 0.75rem;
+            margin-top: 3px;
+        }
+
+        .leaderboard-close-btn {
+            margin-left: auto;
+            background: transparent;
+            border: none;
+            color: #8a8a9e;
+            font-size: 1.8rem;
+            cursor: pointer;
+        }
+
+        .leaderboard-body {
+            padding: 18px 20px 20px;
+        }
+
+        .leaderboard-join-box,
+        .leaderboard-rules-box {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 18px;
+            margin-bottom: 16px;
+        }
+
+        body.light-mode .leaderboard-join-box,
+        body.light-mode .leaderboard-rules-box {
+            background: rgba(0, 0, 0, 0.025);
+            border: 1px solid rgba(0, 0, 0, 0.06);
+        }
+
+        .leaderboard-join-box h3,
+        .leaderboard-rules-box h3 {
+            margin: 0 0 10px;
+            color: #ffb703;
+            font-size: 1.05rem;
+        }
+
+        .leaderboard-join-box p,
+        .leaderboard-rules-box p,
+        .leaderboard-rules-box li {
+            color: #d9d9df;
+            line-height: 1.5;
+            margin: 0;
+        }
+
+        body.light-mode .leaderboard-join-box p,
+        body.light-mode .leaderboard-rules-box p,
+        body.light-mode .leaderboard-rules-box li {
+            color: #2c2c35;
+        }
+
+        .leaderboard-rules-box ul {
+            margin: 8px 0 0 18px;
+            padding: 0;
+        }
+
+        .leaderboard-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 18px;
+            flex-wrap: wrap;
+        }
+
+        .leaderboard-btn {
+            border: none;
+            border-radius: 10px;
+            padding: 10px 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.15s ease;
+        }
+
+        .leaderboard-btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .leaderboard-btn.primary {
+            background: #ffb703;
+            color: #111;
+        }
+
+        .leaderboard-btn.secondary {
+            background: rgba(255, 255, 255, 0.06);
+            color: #f0f0f5;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        body.light-mode .leaderboard-btn.secondary {
+            background: rgba(0, 0, 0, 0.04);
+            color: #1c1c24;
+            border: 1px solid rgba(0, 0, 0, 0.08);
+        }
+
+        .leaderboard-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .leaderboard-row {
+            display: grid;
+            grid-template-columns: 42px 1fr auto;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 14px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        body.light-mode .leaderboard-row {
+            background: rgba(0, 0, 0, 0.02);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .rank-pill {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 183, 3, 0.15);
+            color: #ffb703;
+            font-weight: bold;
+        }
+
+        .leaderboard-name {
+            font-weight: 700;
+            color: #fff;
+        }
+
+        body.light-mode .leaderboard-name {
+            color: #1c1c24;
+        }
+
+        .leaderboard-score {
+            color: #ffb703;
+            font-weight: 800;
+        }
+
+        .leaderboard-empty {
+            text-align: center;
+            color: #a5a5b5;
+            padding: 18px;
+        }
+
+        .chat-rank-badge {
+            display: inline-block;
+            margin-left: 6px;
+            font-size: 0.72rem;
+            font-weight: 800;
+            padding: 2px 6px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.08);
+            vertical-align: middle;
+        }
+
+        .chat-rank-badge.rank-1 {
+            color: #ffb703;
+            background: rgba(255, 183, 3, 0.18);
+        }
+
+        .chat-rank-badge.rank-2 {
+            color: #dfe3e8;
+            background: rgba(223, 227, 232, 0.12);
+        }
+
+        .chat-rank-badge.rank-3 {
+            color: #d4a373;
+            background: rgba(212, 163, 115, 0.12);
+        }
+
+        .collector-item {
+            border: 1px solid rgba(255, 183, 3, 0.4);
+            background: linear-gradient(135deg, rgba(255,183,3,0.12), rgba(255,255,255,0.03));
+        }
+
+        .collector-name {
+            background: linear-gradient(90deg, #ffb703, #f72585, #00f5d4, #ffb703);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            font-weight: 900;
+        }
+
+        .collector-state {
+            font-size: 0.74rem;
+            color: #ffb703;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+
+        .plus-one.multicolor {
+            background: linear-gradient(90deg, #ffb703, #f72585, #00f5d4, #5eead4, #ffb703);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 8px rgba(255,255,255,0.3);
+        }
+
+        body.light-mode .leaderboard-empty {
+            color: #5a5a6a;
+        }
+
+        @media (max-width: 600px) {
+            .leaderboard-toggle-btn {
+                top: 12px;
+                right: 84px;
+                width: 42px;
+                height: 42px;
+                font-size: 1.2rem;
+            }
+        }
     </style>
 </head>
 <body>
@@ -1151,6 +1455,14 @@
         <div class="shop-title">Boutique Divine</div>
         
         <div class="shop-items">
+            <div class="shop-item collector-item">
+                <div class="item-info">
+                    <span class="item-name collector-name">Arme collector</span>
+                    <span class="item-desc">Bonus multicolore de <b>+100 à +1000</b> sur chaque clic si tu as gagné la semaine.<br><span class="collector-state" id="collector-state">Indisponible à l'achat</span></span>
+                </div>
+                <button class="buy-btn" id="buy-collector" disabled>Indisponible à l'achat</button>
+            </div>
+
             <!-- Power-up 1 -->
             <div class="shop-item">
                 <div class="item-info">
@@ -1180,6 +1492,45 @@
         </div>
     </div>
 
+    <button class="leaderboard-toggle-btn" id="leaderboardToggle" title="Classement hebdomadaire">🏆</button>
+
+    <div class="leaderboard-modal" id="leaderboardModal">
+        <div class="leaderboard-modal-content">
+            <div class="leaderboard-header">
+                <button class="leaderboard-logo-btn" id="leaderboardLogoBtn" title="Afficher les règles">🏆</button>
+                <div>
+                    <h2>Classement Hebdo</h2>
+                    <div class="leaderboard-status" id="leaderboardStatusText">Chargement...</div>
+                </div>
+                <button class="leaderboard-close-btn" id="leaderboardClose" title="Fermer">✕</button>
+            </div>
+
+            <div class="leaderboard-body">
+                <div class="leaderboard-join-box" id="leaderboardJoinBox">
+                    <h3>Veux-tu rejoindre le classement ?</h3>
+                    <p>Chaque semaine, le plus grand culte du caillou gagne une arme collector avec un bonus aléatoire de 100 à 1000 points.</p>
+                    <div class="leaderboard-actions">
+                        <button class="leaderboard-btn primary" id="joinLeaderboardBtn">Oui, rejoindre</button>
+                        <button class="leaderboard-btn secondary" id="skipLeaderboardBtn">Pas maintenant</button>
+                    </div>
+                </div>
+
+                <div class="leaderboard-rules-box" id="leaderboardRulesBox" style="display:none;">
+                    <h3>Règles du classement</h3>
+                    <ul>
+                        <li>Le tournoi démarre le lundi et se termine le vendredi.</li>
+                        <li>Le score est basé sur tes clics totalisés.</li>
+                        <li>Le premier du classement gagne une arme collector.</li>
+                        <li>Cette arme donne un bonus aléatoire de 100 à 1000 points.</li>
+                        <li>Le classement se réinitialise automatiquement chaque semaine.</li>
+                    </ul>
+                </div>
+
+                <div class="leaderboard-list" id="leaderboardList"></div>
+            </div>
+        </div>
+    </div>
+
     <div class="game-container">
         <h1>Le Temple du caillou</h1>
 
@@ -1190,7 +1541,7 @@
 
         <div class="status-panel">
             <div class="click-count">Vous avez cliqué <span id="counter">0</span> fois sur le caillou.</div>
-            <p class="rank-text">Vous êtes : <span class="rank-name" id="rank">Nouveau né</span></p>
+            <p class="rank-text">Vous êtes : <span class="rank-name" id="rank">Nouveau-né</span></p>
         </div>
     </div>
 
@@ -1231,6 +1582,8 @@
         let clicks = parseInt(localStorage.getItem('caillou_clicks')) || 0;
         let clickPower = parseInt(localStorage.getItem('caillou_clickPower')) || 1;
         let autoClicks = parseInt(localStorage.getItem('caillou_autoClicks')) || 0;
+        let collectorWeaponBonus = parseInt(localStorage.getItem('caillou_collector_bonus')) || 0;
+        let collectorWeaponWeek = localStorage.getItem('caillou_collector_week') || null;
 
         // Tableau pour suivre les timestamps des clics (Easter egg)
         let clickTimestamps = [];
@@ -1245,7 +1598,7 @@
         const getUp2Cost = () => Math.round(150 * Math.pow(1.6, up2Lvl));
         const getUp3Cost = () => Math.round(100 * Math.pow(1.5, up3Lvl));
 
-        // Configuration des rangs[cite: 3]
+        // Configuration des rangs
         const ranks = [
             { limit: 0, name: "Poussière", intensity: 0 },
             { limit: 10, name: "Apprenti Caillou", intensity: 0.5 },
@@ -1262,10 +1615,10 @@
             { limit: 5000, name: "Caillou sacré", intensity: 38 },
             { limit: 6000, name: "Le Caillou Ultime 🌌", intensity: 39 },
             { limit: 8500, name: "Le caillou singenieur", intensity: 52 },
-            { limit: 12000, name: "caillou cosmique", intensity: 67 },
+            { limit: 12000, name: "Caillou cosmique", intensity: 67 },
             { limit: 17000, name: "Maître de la Galaxie de caillou 🌌", intensity: 72 },
-            { limit: 25000, name: "l'art du caillou", intensity: 80 },
-            { limit: 40000, name: "le big bang caillouteux (oui c'est francais)", intensity: 99 }
+            { limit: 25000, name: "L'art du caillou", intensity: 80 },
+            { limit: 40000, name: "Le big bang caillouteux (oui c'est français)", intensity: 99 }
         ];
 
         // Sauvegarder toute la progression
@@ -1276,6 +1629,32 @@
             localStorage.setItem('caillou_up1_lvl', up1Lvl);
             localStorage.setItem('caillou_up2_lvl', up2Lvl);
             localStorage.setItem('caillou_up3_lvl', up3Lvl);
+            localStorage.setItem('caillou_collector_bonus', collectorWeaponBonus);
+            localStorage.setItem('caillou_collector_week', collectorWeaponWeek || '');
+        }
+
+        function clearCollectorWeapon() {
+            collectorWeaponBonus = 0;
+            collectorWeaponWeek = null;
+            localStorage.removeItem('caillou_collector_bonus');
+            localStorage.removeItem('caillou_collector_week');
+        }
+
+        function updateCollectorShopState() {
+            const collectorState = document.getElementById('collector-state');
+            const collectorBtn = document.getElementById('buy-collector');
+            const currentWeek = getWeekKey();
+            const hasCollector = !!collectorWeaponBonus && collectorWeaponWeek === currentWeek;
+
+            if (collectorState) {
+                collectorState.textContent = hasCollector ? "Arme active cette semaine" : "Indisponible à l'achat";
+                collectorState.style.color = hasCollector ? '#00f5d4' : '#ffb703';
+            }
+
+            if (collectorBtn) {
+                collectorBtn.disabled = true;
+                collectorBtn.textContent = hasCollector ? "Arme collector active" : "Indisponible à l'achat";
+            }
         }
 
         // Commandes disponibles dans la console du navigateur
@@ -1344,6 +1723,7 @@
             document.getElementById('buy-up1').disabled = clicks < cost1;
             document.getElementById('buy-up2').disabled = clicks < cost2;
             document.getElementById('buy-up3').disabled = clicks < cost3;
+            updateCollectorShopState();
         }
 
         // Mettre à jour l'affichage général
@@ -1372,12 +1752,19 @@
             updateShop();
         }
 
+        function getCurrentClickValue() {
+            const currentWeek = getWeekKey();
+            const hasCollector = !!collectorWeaponBonus && collectorWeaponWeek === currentWeek;
+            return hasCollector ? clickPower + collectorWeaponBonus : clickPower;
+        }
+
         // Gérer le clic sur le caillou
         caillou.addEventListener('mousedown', (e) => {
-            clicks += clickPower; 
+            const gain = getCurrentClickValue();
+            clicks += gain;
             saveGame();
             updateDisplay();
-            createFloatEffect(e.clientX, e.clientY, clickPower);
+            createFloatEffect(e.clientX, e.clientY, gain);
 
             // Enregistrer le timestamp du clic pour le calcul des CPS
             clickTimestamps.push(Date.now());
@@ -1386,7 +1773,8 @@
         // Effet de particule qui s'envole au clic
         function createFloatEffect(x, y, value) {
             const plusOne = document.createElement('div');
-            plusOne.className = 'plus-one';
+            const hasCollector = !!collectorWeaponBonus && collectorWeaponWeek === getWeekKey();
+            plusOne.className = hasCollector ? 'plus-one multicolor' : 'plus-one';
             plusOne.textContent = '+' + value;
             
             const offsetX = (Math.random() - 0.5) * 20;
@@ -1446,11 +1834,11 @@
             }
         });
 
-        // Boucle de vérification permanente (Auto-clicker & Easter Egg)[cite: 3]
+        // Boucle de vérification permanente (Auto-clicker & Easter Egg)
         setInterval(() => {
             const now = Date.now();
 
-            // 1. Gérer l'auto-clicker[cite: 3]
+            // 1. Gérer l'auto-clicker
             if (autoClicks > 0) {
                 clicks += (autoClicks / 10);
                 if (Math.random() < (autoClicks / 10) % 1) {
@@ -1462,7 +1850,7 @@
                 updateDisplay();
             }
 
-            // 2. Vérification des clics par seconde (Easter Egg)[cite: 3]
+            // 2. Vérification des clics par seconde (Easter Egg)
             clickTimestamps = clickTimestamps.filter(t => now - t < 1000);
             
             if (clickTimestamps.length >= 6) {
@@ -1502,6 +1890,7 @@
                 up1Lvl = 0;
                 up2Lvl = 0;
                 up3Lvl = 0;
+                localStorage.removeItem('caillou_leaderboard_base_clicks');
                 saveGame();
                 updateDisplay();
             }
@@ -1510,6 +1899,327 @@
 
         // Initialisation au chargement
         updateDisplay();
+
+        // ======================================================
+        // CLASSEMENT HEBDOMADAIRE EN LIGNE (FIREBASE)
+        // ======================================================
+        const leaderboardToggle = document.getElementById('leaderboardToggle');
+        const leaderboardModal = document.getElementById('leaderboardModal');
+        const leaderboardClose = document.getElementById('leaderboardClose');
+        const leaderboardJoinBox = document.getElementById('leaderboardJoinBox');
+        const leaderboardRulesBox = document.getElementById('leaderboardRulesBox');
+        const leaderboardList = document.getElementById('leaderboardList');
+        const leaderboardStatusText = document.getElementById('leaderboardStatusText');
+        const leaderboardLogoBtn = document.getElementById('leaderboardLogoBtn');
+        const joinLeaderboardBtn = document.getElementById('joinLeaderboardBtn');
+        const skipLeaderboardBtn = document.getElementById('skipLeaderboardBtn');
+        let leaderboardTop3Map = new Map();
+
+        function getWeekStart(date = new Date()) {
+            const d = new Date(date);
+            const day = d.getDay();
+            const diffToMonday = (day === 0 ? -6 : 1 - day);
+            d.setHours(0, 0, 0, 0);
+            d.setDate(d.getDate() + diffToMonday);
+            return d;
+        }
+
+        function getWeekKey(date = new Date()) {
+            const start = getWeekStart(date);
+            return `week-${start.getFullYear()}-${String(start.getMonth() + 1).padStart(2, '0')}-${String(start.getDate()).padStart(2, '0')}`;
+        }
+
+        function isLeaderboardOpen() {
+            const day = new Date().getDay();
+            return day >= 1 && day <= 5;
+        }
+
+        function getLeaderboardMetaText() {
+            const start = getWeekStart();
+            const end = new Date(start);
+            end.setDate(start.getDate() + 4);
+            const options = { day: 'numeric', month: 'numeric' };
+            const rangeText = `${start.toLocaleDateString('fr-FR', options)} au ${end.toLocaleDateString('fr-FR', options)}`;
+            return isLeaderboardOpen() ? `Semaine active • ${rangeText}` : `Classement fermé • Reprise le lundi`;
+        }
+
+        function getPlayerId() {
+            let playerId = localStorage.getItem('caillou_player_id');
+            if (!playerId) {
+                playerId = 'player_' + Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
+                localStorage.setItem('caillou_player_id', playerId);
+            }
+            return playerId;
+        }
+
+        function isJoinedForCurrentWeek() {
+            return localStorage.getItem('caillou_leaderboard_joined_week') === getWeekKey();
+        }
+
+        function openLeaderboardModal() {
+            // Afficher la boîte de rejoindre seulement si le joueur n'a pas déjà rejoint
+            if (isJoinedForCurrentWeek()) {
+                leaderboardJoinBox.style.display = 'none';
+            } else {
+                leaderboardJoinBox.style.display = 'block';
+            }
+            leaderboardRulesBox.style.display = 'none';
+            leaderboardModal.classList.add('open');
+        }
+
+        function closeLeaderboardModal() {
+            leaderboardModal.classList.remove('open');
+        }
+
+        leaderboardToggle.addEventListener('click', () => {
+            openLeaderboardModal();
+        });
+
+        leaderboardClose.addEventListener('click', () => {
+            closeLeaderboardModal();
+        });
+
+        leaderboardModal.addEventListener('click', (event) => {
+            if (event.target === leaderboardModal) {
+                closeLeaderboardModal();
+            }
+        });
+
+        leaderboardLogoBtn.addEventListener('click', () => {
+            const isVisible = leaderboardRulesBox.style.display !== 'none';
+            leaderboardRulesBox.style.display = isVisible ? 'none' : 'block';
+        });
+
+        skipLeaderboardBtn.addEventListener('click', () => {
+            localStorage.setItem('caillou_leaderboard_skip_week', getWeekKey());
+            closeLeaderboardModal();
+        });
+
+        function joinLeaderboard() {
+            const currentWeek = getWeekKey();
+            const playerId = getPlayerId();
+            const ref = database.ref(`leaderboard/${currentWeek}/entries/${playerId}`);
+
+            // Enregistrer les clics actuels comme base de départ pour la semaine
+            localStorage.setItem('caillou_leaderboard_base_clicks', clicks);
+
+            ref.set({
+                playerId,
+                pseudo: monPseudo,
+                score: 0,
+                updatedAt: Date.now(),
+                joinedAt: Date.now()
+            }).then(() => {
+                localStorage.setItem('caillou_leaderboard_joined_week', currentWeek);
+                localStorage.removeItem('caillou_leaderboard_skip_week');
+                leaderboardJoinBox.style.display = 'none';
+                closeLeaderboardModal();
+                syncLeaderboardScore();
+            }).catch(() => {
+                alert('Impossible de rejoindre le classement pour le moment.');
+            });
+        }
+
+        joinLeaderboardBtn.addEventListener('click', joinLeaderboard);
+
+        function syncLeaderboardScore() {
+            if (!isLeaderboardOpen() || !isJoinedForCurrentWeek()) return;
+
+            const currentWeek = getWeekKey();
+            const playerId = getPlayerId();
+
+            // Soustraire le nombre de clics au moment de l'inscription
+            const baseClicks = parseInt(localStorage.getItem('caillou_leaderboard_base_clicks')) || 0;
+            const leaderboardScore = Math.max(0, clicks - baseClicks);
+
+            database.ref(`leaderboard/${currentWeek}/entries/${playerId}`).set({
+                playerId,
+                pseudo: monPseudo,
+                score: leaderboardScore,
+                updatedAt: Date.now()
+            });
+        }
+
+        function updateLeaderboardUI(entries) {
+            leaderboardList.innerHTML = '';
+
+            if (!entries || entries.length === 0) {
+                leaderboardList.innerHTML = '<div class="leaderboard-empty">Aucun joueur inscrit pour cette semaine.</div>';
+                leaderboardTop3Map = new Map();
+                return;
+            }
+
+            const sorted = entries
+                .slice()
+                .sort((a, b) => (b.score || 0) - (a.score || 0))
+                .slice(0, 10);
+
+            leaderboardTop3Map = new Map();
+            sorted.slice(0, 3).forEach((entry, index) => {
+                leaderboardTop3Map.set(String(entry.pseudo || '').trim(), index + 1);
+            });
+
+            sorted.forEach((entry, index) => {
+                const row = document.createElement('div');
+                row.className = 'leaderboard-row';
+                row.innerHTML = `
+                    <div class="rank-pill">${index + 1}</div>
+                    <div class="leaderboard-name">${entry.pseudo || 'Anonyme'}</div>
+                    <div class="leaderboard-score">${entry.score || 0}</div>
+                `;
+                leaderboardList.appendChild(row);
+            });
+        }
+
+        function getChatRankBadge(authorName) {
+            if (!authorName) return '';
+            const rank = leaderboardTop3Map.get(String(authorName).trim());
+            if (!rank || rank > 3) return '';
+            return `<span class="chat-rank-badge rank-${rank}">(${rank})</span>`;
+        }
+
+        function refreshLeaderboard() {
+            const weekKey = getWeekKey();
+            const activeRef = database.ref(`leaderboard/${weekKey}/entries`);
+            activeRef.on('value', (snapshot) => {
+                const raw = snapshot.val() || {};
+                const entries = Object.values(raw);
+                updateLeaderboardUI(entries);
+            });
+
+            leaderboardStatusText.textContent = getLeaderboardMetaText();
+            const shouldShowJoin = isLeaderboardOpen() && !isJoinedForCurrentWeek() && localStorage.getItem('caillou_leaderboard_skip_week') !== weekKey;
+            leaderboardJoinBox.style.display = shouldShowJoin ? 'block' : 'none';
+
+            if (!isLeaderboardOpen()) {
+                leaderboardRulesBox.style.display = 'block';
+            }
+        }
+
+        function showCollectorReward(reward, pseudo) {
+            const currentWeek = getWeekKey();
+            const toastKey = `caillou_reward_toast_${currentWeek}`;
+            if (localStorage.getItem(toastKey) === '1') return;
+
+            localStorage.setItem(toastKey, '1');
+
+            const toast = document.createElement('div');
+            toast.style.position = 'fixed';
+            toast.style.bottom = '70px';
+            toast.style.right = '20px';
+            toast.style.background = 'rgba(255, 183, 3, 0.95)';
+            toast.style.color = '#111';
+            toast.style.padding = '12px 16px';
+            toast.style.borderRadius = '12px';
+            toast.style.fontWeight = 'bold';
+            toast.style.zIndex = '250';
+            toast.style.boxShadow = '0 12px 24px rgba(0,0,0,0.2)';
+            toast.textContent = `${pseudo} a gagné une arme collector +${reward} points !`;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 4000);
+        }
+
+        function awardWeeklyWeaponIfNeeded() {
+            const weekKey = getWeekKey();
+            const weekRef = database.ref(`leaderboard/${weekKey}`);
+
+            weekRef.once('value', (snapshot) => {
+                const data = snapshot.val() || {};
+                const entries = data.entries ? Object.values(data.entries) : [];
+
+                if (entries.length === 0) return;
+
+                entries.sort((a, b) => (b.score || 0) - (a.score || 0));
+                const winner = entries[0];
+                const reward = 100 + Math.floor(Math.random() * 901);
+
+                const winnerState = data.winner || null;
+                if (!winnerState || winnerState.playerId !== winner.playerId || winnerState.reward !== reward) {
+                    weekRef.update({
+                        winner: {
+                            playerId: winner.playerId,
+                            pseudo: winner.pseudo,
+                            reward,
+                            awardedAt: Date.now()
+                        }
+                    });
+                }
+
+                const myPlayerId = getPlayerId();
+                const isWinner = winner && winner.playerId === myPlayerId;
+                if (isWinner && collectorWeaponWeek !== weekKey) {
+                    collectorWeaponBonus = reward;
+                    collectorWeaponWeek = weekKey;
+                    saveGame();
+                    updateDisplay();
+                }
+
+                if (!isWinner && collectorWeaponWeek === weekKey) {
+                    clearCollectorWeapon();
+                }
+
+                const winnerDisplayed = localStorage.getItem(`caillou_reward_toast_${weekKey}`) === '1';
+                if (!winnerDisplayed) {
+                    showCollectorReward(reward, winner.pseudo || 'Le gagnant');
+                }
+            });
+        }
+
+        function handleWeeklyResetAndRewards() {
+            const weekKey = getWeekKey();
+            const lastWeekKey = localStorage.getItem('caillou_leaderboard_week_key');
+
+            if (lastWeekKey !== weekKey) {
+                localStorage.setItem('caillou_leaderboard_week_key', weekKey);
+                localStorage.removeItem('caillou_leaderboard_joined_week');
+                localStorage.removeItem('caillou_leaderboard_skip_week');
+                localStorage.removeItem('caillou_leaderboard_base_clicks');
+                if (collectorWeaponWeek && collectorWeaponWeek !== weekKey) {
+                    clearCollectorWeapon();
+                }
+            }
+
+            if (isLeaderboardOpen()) {
+                const shouldShowJoin = !isJoinedForCurrentWeek() && localStorage.getItem('caillou_leaderboard_skip_week') !== weekKey;
+                if (shouldShowJoin) {
+                    openLeaderboardModal();
+                }
+            } else {
+                awardWeeklyWeaponIfNeeded();
+            }
+        }
+
+        // Vérifier si le joueur existe vraiment dans Firebase
+        function verifyLeaderboardMembership() {
+            const weekKey = getWeekKey();
+            const playerId = getPlayerId();
+            const ref = database.ref(`leaderboard/${weekKey}/entries/${playerId}`);
+
+            ref.once('value', (snapshot) => {
+                if (!snapshot.exists()) {
+                    // Le joueur n'existe pas dans Firebase, supprimer la flag localStorage
+                    localStorage.removeItem('caillou_leaderboard_joined_week');
+                }
+            });
+        }
+
+        handleWeeklyResetAndRewards();
+        refreshLeaderboard();
+        verifyLeaderboardMembership();
+
+        const originalUpdateDisplay = updateDisplay;
+        updateDisplay = function() {
+            originalUpdateDisplay();
+            syncLeaderboardScore();
+        };
+
+        setInterval(() => {
+            leaderboardStatusText.textContent = getLeaderboardMetaText();
+            if (!isLeaderboardOpen()) {
+                leaderboardRulesBox.style.display = 'block';
+            }
+            handleWeeklyResetAndRewards();
+        }, 60000);
     </script>
 </body>
 </html>
