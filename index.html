@@ -443,7 +443,7 @@
         chatModal.classList.remove('open');
       }
     });
-    // 1. CONFIGURATION FIREBASE (Remplace avec tes vraies clés de l'étape 1)
+    // 1. CONFIGURATION FIREBASE
     const firebaseConfig = {
       apiKey: "AIzaSyDIHWiPFPXJLxbj2WfAPW2RpsxTlajJKN4",
       authDomain: "le-temple-du-cailllou.firebaseapp.com",
@@ -462,7 +462,6 @@
     function ObtenirNomUtilisateur() {
       let pseudo = localStorage.getItem('chat_username');
       if (!pseudo) {
-        // Génère un pseudo aléatoire anonyme type "04829"
         const numAnonyme = Math.floor(10000 + Math.random() * 90000);
         pseudo = "Anonyme_" + numAnonyme;
         localStorage.setItem('chat_username', pseudo);
@@ -491,16 +490,13 @@
       const warningEl = document.getElementById('chatWarning');
       const texte = input.value.trim();
 
-      // Réinitialiser le message d'avertissement
       warningEl.textContent = '';
 
-      // Vérifier si le message est vide
       if (texte === "") {
         warningEl.textContent = "Envoie des vrais messages";
         return;
       }
 
-      // Vérifier le cooldown de 3 secondes
       const now = Date.now();
       if (now - lastMessageTime < SPAM_COOLDOWN) {
         const timeRemaining = Math.ceil((SPAM_COOLDOWN - (now - lastMessageTime)) / 1000);
@@ -508,10 +504,8 @@
         return;
       }
 
-      // Mettre à jour le timestamp du dernier message
       lastMessageTime = now;
 
-      // On pousse le message dans le chemin "messages/"
       database.ref('messages').push({
         auteur: monPseudo,
         texte: texte,
@@ -523,7 +517,6 @@
     // 4. RECEVOIR LES MESSAGES EN TEMPS RÉEL
     const chatBox = document.getElementById('chat-box');
 
-    // Fonction pour formater l'heure
     function formatTime(timestamp) {
       const date = new Date(timestamp);
       const hours = String(date.getHours()).padStart(2, '0');
@@ -531,7 +524,6 @@
       return `${hours}:${minutes}`;
     }
 
-    // Écoute les nouveaux messages ajoutés
     database.ref('messages').limitToLast(20).on('child_added', (snapshot) => {
       const msg = snapshot.val();
       const time = formatTime(msg.timestamp);
@@ -542,7 +534,6 @@
       msgElement.innerHTML = `<span class="author">${msg.auteur}${badge} <span style="font-size: 0.85rem; color: #999; font-weight: normal;">${time}</span></span> ${msg.texte}`;
       
       chatBox.appendChild(msgElement);
-      // Auto-scroll vers le bas
       chatBox.scrollTop = chatBox.scrollHeight;
     });
   </script>
@@ -569,13 +560,11 @@
             transition: background 0.3s ease, color 0.3s ease;
         }
 
-        /* --- CLASSE POUR LE MODE CLAIR --- */
         body.light-mode {
             background: radial-gradient(circle, #f0f0f5 0%, #dcdce5 100%);
             color: #1c1c24;
         }
 
-        /* Conteneur principal */
         .game-container {
             display: flex;
             flex-direction: column;
@@ -587,7 +576,6 @@
             padding: 0 15px;
         }
 
-        /* Titre discret en haut */
         h1 {
             font-size: 1.5rem;
             letter-spacing: 2px;
@@ -601,7 +589,6 @@
             color: #4a4a5a;
         }
 
-        /* Zone centrale du caillou */
         .caillou-wrapper {
             position: relative;
             display: flex;
@@ -610,7 +597,6 @@
             flex-grow: 1;
         }
 
-        /* Effet d'aura derrière le caillou qui grandit avec le score */
         .halo {
             position: absolute;
             width: 300px;
@@ -635,12 +621,10 @@
             -webkit-user-drag: none;
         }
 
-        /* Animation de clic (enfoncement rapide) */
         .caillou-img:active {
             transform: scale(0.93) rotate(-1deg);
         }
 
-        /* Effet d'envol du +1 */
         .plus-one {
             position: absolute;
             color: #ffffff;
@@ -667,7 +651,6 @@
             }
         }
 
-        /* Fenêtre du bas (Statut et Rang) */
         .status-panel {
             background: rgba(255, 255, 255, 0.03);
             border: 1px solid rgba(255, 255, 255, 0.08);
@@ -717,7 +700,6 @@
             color: #2c2c35;
         }
 
-        /* Le nom du rang qui tremble */
         .rank-name {
             display: inline-block;
             font-weight: 800;
@@ -726,7 +708,6 @@
             animation: shake 0.2s infinite linear;
         }
 
-        /* Keyframes pour le tremblement dynamique */
         @keyframes shake {
             0% { transform: translate(0, 0) rotate(0deg); }
             10% { transform: translate(calc(-0.5px * var(--intensity)), calc(-0.5px * var(--intensity))) rotate(calc(-0.2deg * var(--intensity))); }
@@ -741,7 +722,6 @@
             100% { transform: translate(0, 0) rotate(0deg); }
         }
 
-        /* Bouton de réinitialisation discret */
         .reset-btn {
             position: absolute;
             bottom: 15px;
@@ -764,8 +744,6 @@
         }
 
         /* --- STYLES DE LA BOUTIQUE --- */
-        
-        /* Bouton pour ouvrir la boutique */
         .shop-toggle-btn {
             position: absolute;
             top: 20px;
@@ -794,13 +772,12 @@
             background: rgba(0, 0, 0, 0.1);
         }
 
-        /* Panneau coulissant de la boutique */
         .shop-sidebar {
             position: fixed;
             top: 0;
-            right: -320px; /* Caché par défaut */
-            width: 300px;
-            max-width: 85%;
+            right: -340px;
+            width: 320px;
+            max-width: 88%;
             height: 100%;
             background: rgba(13, 13, 17, 0.95);
             border-left: 1px solid rgba(255, 255, 255, 0.08);
@@ -812,7 +789,7 @@
             box-sizing: border-box;
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 15px;
         }
         .shop-sidebar.open {
             right: 0;
@@ -823,7 +800,6 @@
             box-shadow: -10px 0 30px rgba(0, 0, 0, 0.1);
         }
 
-        /* Bouton pour fermer la boutique */
         .shop-close-btn {
             align-self: flex-end;
             background: none;
@@ -844,25 +820,71 @@
             font-size: 1.4rem;
             font-weight: bold;
             color: #ffb703;
-            margin-bottom: 5px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            padding-bottom: 10px;
+            margin-bottom: 0px;
             text-transform: uppercase;
             letter-spacing: 1px;
         }
-        body.light-mode .shop-title {
+
+        /* BARRE D'ONGLETS BOUTIQUE */
+        .shop-tabs {
+            display: flex;
+            gap: 6px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 10px;
+        }
+        body.light-mode .shop-tabs {
             border-bottom: 1px solid rgba(0, 0, 0, 0.1);
         }
 
-        .shop-items {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            overflow-y: auto;
-            flex-grow: 1;
+        .shop-tab-btn {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #8a8a9e;
+            padding: 8px 6px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.78rem;
+            font-weight: bold;
+            transition: all 0.2s ease;
+        }
+        .shop-tab-btn:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: #fff;
+        }
+        .shop-tab-btn.active {
+            background: #ffb703;
+            color: #0d0d11;
+            border-color: #ffb703;
+        }
+        body.light-mode .shop-tab-btn {
+            background: rgba(0, 0, 0, 0.04);
+            border-color: rgba(0, 0, 0, 0.08);
+            color: #5a5a6a;
+        }
+        body.light-mode .shop-tab-btn:hover {
+            background: rgba(0, 0, 0, 0.08);
+            color: #1c1c24;
+        }
+        body.light-mode .shop-tab-btn.active {
+            background: #ffb703;
+            color: #1c1c24;
         }
 
-        /* Un article de la boutique */
+        .shop-items-container {
+            flex-grow: 1;
+            overflow-y: auto;
+        }
+
+        .tab-content {
+            display: none;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .tab-content.active {
+            display: flex;
+        }
+
         .shop-item {
             background: rgba(255, 255, 255, 0.03);
             border: 1px solid rgba(255, 255, 255, 0.08);
@@ -884,6 +906,27 @@
         body.light-mode .shop-item:hover {
             background: rgba(0, 0, 0, 0.04);
             border-color: rgba(0, 0, 0, 0.1);
+        }
+
+        .skin-header-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .skin-preview-thumb {
+            width: 48px;
+            height: 48px;
+            object-fit: contain;
+            background: rgba(0, 0, 0, 0.25);
+            border-radius: 8px;
+            padding: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            flex-shrink: 0;
+        }
+        body.light-mode .skin-preview-thumb {
+            background: rgba(255, 255, 255, 0.5);
+            border: 1px solid rgba(0, 0, 0, 0.1);
         }
 
         .item-info {
@@ -912,7 +955,6 @@
             color: #5a5a6a;
         }
 
-        /* Bouton d'achat */
         .buy-btn {
             background: #ffb703;
             color: #0d0d11;
@@ -943,7 +985,13 @@
             border: 1px solid rgba(0, 0, 0, 0.03);
         }
 
-        /* STYLE DE L'EASTER EGG */
+        .buy-btn.equipped {
+            background: #00f5d4 !important;
+            color: #0d0d11 !important;
+            cursor: default !important;
+        }
+
+        /* EASTER EGG */
         .easter-egg-msg {
             position: fixed;
             top: 50%;
@@ -972,7 +1020,7 @@
             100% { transform: translate(-50%, -50%) scale(1.1); }
         }
 
-        /* --- STYLES DU LEVIER DE TRADUCTION DE MODE (AJOUTÉ) --- */
+        /* LEVIER DE THÈME */
         .lever-container {
             position: absolute;
             bottom: 15px;
@@ -1034,7 +1082,6 @@
             border: 1px solid rgba(0, 0, 0, 0.1);
         }
 
-        /* --- RESPONSIVE : TÉLÉPHONES ET PETITS ÉCRANS --- */
         @media (max-width: 600px) {
             h1 {
                 font-size: 1.1rem;
@@ -1056,7 +1103,7 @@
                 width: 100%;
                 max-width: 100%;
                 padding: 15px 20px;
-                margin-bottom: 60px; /* laisse la place au levier / bouton reset en bas */
+                margin-bottom: 60px;
             }
 
             .click-count {
@@ -1079,7 +1126,7 @@
             }
 
             .shop-sidebar {
-                width: 260px;
+                width: 280px;
             }
 
             .easter-egg-msg {
@@ -1128,7 +1175,7 @@
             }
         }
 
-        /* --- CLASSEMENT HEBDOMADAIRE --- */
+        /* CLASSEMENT HEBDOMADAIRE */
         .leaderboard-toggle-btn {
             position: absolute;
             top: 20px;
@@ -1454,40 +1501,76 @@
         <button class="shop-close-btn" id="shopClose">✕</button>
         <div class="shop-title">Boutique Divine</div>
         
-        <div class="shop-items">
-            <div class="shop-item collector-item">
-                <div class="item-info">
-                    <span class="item-name collector-name">Arme collector</span>
-                    <span class="item-desc">Bonus multicolore de <b>+100 à +1000</b> sur chaque clic si tu as gagné la semaine.<br><span class="collector-state" id="collector-state">Indisponible à l'achat</span></span>
+        <!-- Navigation par onglets -->
+        <div class="shop-tabs">
+            <button class="shop-tab-btn active" data-tab="upgrades">Bonus & Armes</button>
+            <button class="shop-tab-btn" data-tab="skins">Skins et pack de skins</button>
+        </div>
+
+        <div class="shop-items-container">
+            <!-- ONGLET 1 : AMÉLIORATIONS & BONUS -->
+            <div class="tab-content active" id="tab-upgrades">
+                <div class="shop-item collector-item">
+                    <div class="item-info">
+                        <span class="item-name collector-name">Arme collector</span>
+                        <span class="item-desc">Bonus multicolore de <b>+100 à +1000</b> sur chaque clic si tu as gagné la semaine.<br><span class="collector-state" id="collector-state">Indisponible à l'achat</span></span>
+                    </div>
+                    <button class="buy-btn" id="buy-collector" disabled>Indisponible à l'achat</button>
                 </div>
-                <button class="buy-btn" id="buy-collector" disabled>Indisponible à l'achat</button>
+
+                <!-- Power-up 1 -->
+                <div class="shop-item">
+                    <div class="item-info">
+                        <span class="item-name">Super Pioche</span>
+                        <span class="item-desc">Augmente la puissance de chaque clic de <b>+1</b>.<br>(Niveau : <span id="up1-lvl">0</span>)</span>
+                    </div>
+                    <button class="buy-btn" id="buy-up1">Acheter : <span id="up1-cost">30</span> clics</button>
+                </div>
+
+                <!-- Power-up 2 -->
+                <div class="shop-item">
+                    <div class="item-info">
+                        <span class="item-name">Forgeron de la Roche</span>
+                        <span class="item-desc">Ajoute un immense boost de <b>+5</b> par clic.<br>(Niveau : <span id="up2-lvl">0</span>)</span>
+                    </div>
+                    <button class="buy-btn" id="buy-up2">Acheter : <span id="up2-cost">150</span> clics</button>
+                </div>
+
+                <!-- Power-up 3 (Auto-clicker) -->
+                <div class="shop-item">
+                    <div class="item-info">
+                        <span class="item-name">Esprit du Caillou</span>
+                        <span class="item-desc">Génère automatiquement <b>+1</b> clic chaque seconde.<br>(Niveau : <span id="up3-lvl">0</span>)</span>
+                    </div>
+                    <button class="buy-btn" id="buy-up3">Acheter : <span id="up3-cost">100</span> clics</button>
+                </div>
             </div>
 
-            <!-- Power-up 1 -->
-            <div class="shop-item">
-                <div class="item-info">
-                    <span class="item-name">Super Pioche</span>
-                    <span class="item-desc">Augmente la puissance de chaque clic de <b>+1</b>.<br>(Niveau : <span id="up1-lvl">0</span>)</span>
+            <!-- ONGLET 2 : SKINS ET PACK DE SKINS -->
+            <div class="tab-content" id="tab-skins">
+                <!-- Skin classique (De base) -->
+                <div class="shop-item">
+                    <div class="skin-header-wrapper">
+                        <img src="caillou.png" alt="Caillou classique" class="skin-preview-thumb">
+                        <div class="item-info">
+                            <span class="item-name">Caillou Classique</span>
+                            <span class="item-desc">Le caillou légendaire et sacré (osez me dire qu'il est pas beau)</span>
+                        </div>
+                    </div>
+                    <button class="buy-btn" id="buy-skin-default">Équipé</button>
                 </div>
-                <button class="buy-btn" id="buy-up1">Acheter : <span id="up1-cost">30</span> clics</button>
-            </div>
 
-            <!-- Power-up 2 -->
-            <div class="shop-item">
-                <div class="item-info">
-                    <span class="item-name">Forgeron de la Roche</span>
-                    <span class="item-desc">Ajoute un immense boost de <b>+5</b> par clic.<br>(Niveau : <span id="up2-lvl">0</span>)</span>
+                <!-- Nouveau Skin : Caillou basse qualité -->
+                <div class="shop-item">
+                    <div class="skin-header-wrapper">
+                        <img src="caillou bs uuuuh.png" alt="caillou sous basse qualité" class="skin-preview-thumb">
+                        <div class="item-info">
+                            <span class="item-name">caillou sous basse qualité</span>
+                            <span class="item-desc">Pourquoi pas ?</span>
+                        </div>
+                    </div>
+                    <button class="buy-btn" id="buy-skin-lowres">Acheter : 331 clics</button>
                 </div>
-                <button class="buy-btn" id="buy-up2">Acheter : <span id="up2-cost">150</span> clics</button>
-            </div>
-
-            <!-- Power-up 3 (Auto-clicker) -->
-            <div class="shop-item">
-                <div class="item-info">
-                    <span class="item-name">Esprit du Caillou</span>
-                    <span class="item-desc">Génère automatiquement <b>+1</b> clic chaque seconde.<br>(Niveau : <span id="up3-lvl">0</span>)</span>
-                </div>
-                <button class="buy-btn" id="buy-up3">Acheter : <span id="up3-cost">100</span> clics</button>
             </div>
         </div>
     </div>
@@ -1546,7 +1629,7 @@
         </div>
     </div>
 
-    <!-- Levier Thème Sombre / Clair (AJOUTÉ) -->
+    <!-- Levier Thème Sombre / Clair -->
     <div class="lever-container">
         <span id="leverLabel">Mode Sombre</span>
         <label class="switch-lever">
@@ -1558,7 +1641,6 @@
     <button class="reset-btn" id="reset">Réinitialiser</button>
 
     <script>
-        //son taco bell
         const resetSound = document.getElementById('resetSound');
         
         // Récupération des éléments DOM
@@ -1569,12 +1651,10 @@
         const resetBtn = document.getElementById('reset');
         const easterEggEl = document.getElementById('easterEgg');
         
-        // Éléments du levier et du son (AJOUTÉS)
         const themeToggle = document.getElementById('themeToggle');
         const lightModeSound = document.getElementById('lightModeSound');
         const leverLabel = document.getElementById('leverLabel');
 
-        // Éléments de la boutique
         const shopToggle = document.getElementById('shopToggle');
         const shopSidebar = document.getElementById('shopSidebar');
         const shopClose = document.getElementById('shopClose');
@@ -1586,7 +1666,10 @@
         let collectorWeaponBonus = parseInt(localStorage.getItem('caillou_collector_bonus')) || 0;
         let collectorWeaponWeek = localStorage.getItem('caillou_collector_week') || null;
 
-        // Tableau pour suivre les timestamps des clics (Easter egg)
+        // GESTION DES SKINS
+        let ownedSkins = JSON.parse(localStorage.getItem('caillou_owned_skins')) || ['default'];
+        let equippedSkin = localStorage.getItem('caillou_equipped_skin') || 'caillou.png';
+
         let clickTimestamps = [];
 
         // Niveaux des améliorations
@@ -1594,12 +1677,10 @@
         let up2Lvl = parseInt(localStorage.getItem('caillou_up2_lvl')) || 0;
         let up3Lvl = parseInt(localStorage.getItem('caillou_up3_lvl')) || 0;
 
-        // Calcul dynamique des coûts des améliorations
         const getUp1Cost = () => Math.round(30 * Math.pow(1.5, up1Lvl));
         const getUp2Cost = () => Math.round(150 * Math.pow(1.6, up2Lvl));
         const getUp3Cost = () => Math.round(100 * Math.pow(1.5, up3Lvl));
 
-        // Configuration des rangs
         const ranks = [
             { limit: 0, name: "Poussière", intensity: 0 },
             { limit: 10, name: "Apprenti Caillou", intensity: 0.5 },
@@ -1622,7 +1703,6 @@
             { limit: 40000, name: "Le big bang caillouteux (oui c'est français)", intensity: 99 }
         ];
 
-        // Sauvegarder toute la progression
         function saveGame() {
             localStorage.setItem('caillou_clicks', clicks);
             localStorage.setItem('caillou_clickPower', clickPower);
@@ -1632,6 +1712,8 @@
             localStorage.setItem('caillou_up3_lvl', up3Lvl);
             localStorage.setItem('caillou_collector_bonus', collectorWeaponBonus);
             localStorage.setItem('caillou_collector_week', collectorWeaponWeek || '');
+            localStorage.setItem('caillou_owned_skins', JSON.stringify(ownedSkins));
+            localStorage.setItem('caillou_equipped_skin', equippedSkin);
         }
 
         function clearCollectorWeapon() {
@@ -1658,7 +1740,6 @@
             }
         }
 
-        // Commandes disponibles dans la console du navigateur
         window.caillouCheats = {
             addPoints(amount = 1000) {
                 clicks += Number(amount) || 0;
@@ -1691,19 +1772,14 @@
                 up1Lvl = 0;
                 up2Lvl = 0;
                 up3Lvl = 0;
+                ownedSkins = ['default'];
+                equippedSkin = 'caillou.png';
                 saveGame();
                 updateDisplay();
                 return 'Le caillou a été réinitialisé.';
             },
             status() {
-                return {
-                    clicks,
-                    clickPower,
-                    autoClicks,
-                    up1Lvl,
-                    up2Lvl,
-                    up3Lvl
-                };
+                return { clicks, clickPower, autoClicks, up1Lvl, up2Lvl, up3Lvl, ownedSkins, equippedSkin };
             }
         };
 
@@ -1724,14 +1800,51 @@
             document.getElementById('buy-up1').disabled = clicks < cost1;
             document.getElementById('buy-up2').disabled = clicks < cost2;
             document.getElementById('buy-up3').disabled = clicks < cost3;
+            
             updateCollectorShopState();
+            updateSkinsShop();
+        }
+
+        // Mettre à jour l'affichage des skins dans la boutique
+        function updateSkinsShop() {
+            const btnDefault = document.getElementById('buy-skin-default');
+            const btnLowres = document.getElementById('buy-skin-lowres');
+
+            // Skin par défaut
+            if (equippedSkin === 'caillou.png') {
+                btnDefault.textContent = "Équipé";
+                btnDefault.disabled = true;
+                btnDefault.className = "buy-btn equipped";
+            } else {
+                btnDefault.textContent = "Équiper";
+                btnDefault.disabled = false;
+                btnDefault.className = "buy-btn";
+            }
+
+            // Skin bas-débit / basse qualité
+            const hasLowres = ownedSkins.includes('lowres');
+            if (equippedSkin === 'caillou bs uuuuh.png') {
+                btnLowres.textContent = "Équipé";
+                btnLowres.disabled = true;
+                btnLowres.className = "buy-btn equipped";
+            } else if (hasLowres) {
+                btnLowres.textContent = "Équiper";
+                btnLowres.disabled = false;
+                btnLowres.className = "buy-btn";
+            } else {
+                btnLowres.textContent = "Acheter : 331 clics";
+                btnLowres.disabled = clicks < 331;
+                btnLowres.className = "buy-btn";
+            }
         }
 
         // Mettre à jour l'affichage général
         function updateDisplay() {
             counterEl.textContent = clicks;
 
-            // Trouver le rang correspondant
+            // Mettre à jour l'image du caillou
+            caillou.src = equippedSkin;
+
             let currentRank = ranks[0];
             for (let i = 0; i < ranks.length; i++) {
                 if (clicks >= ranks[i].limit) {
@@ -1741,15 +1854,12 @@
                 }
             }
 
-            // Appliquer le texte et l'intensité du tremblement
             rankEl.textContent = currentRank.name;
             document.documentElement.style.setProperty('--intensity', currentRank.intensity);
 
-            // Ajuster l'effet d'aura
             const scaleFactor = 1 + Math.min(clicks / 1000, 1.5); 
             halo.style.transform = `scale(${scaleFactor})`;
 
-            // Met à jour l'état des boutons de la boutique à chaque changement de score
             updateShop();
         }
 
@@ -1759,19 +1869,15 @@
             return hasCollector ? clickPower + collectorWeaponBonus : clickPower;
         }
 
-        // Gérer le clic sur le caillou
         caillou.addEventListener('mousedown', (e) => {
             const gain = getCurrentClickValue();
             clicks += gain;
             saveGame();
             updateDisplay();
             createFloatEffect(e.clientX, e.clientY, gain);
-
-            // Enregistrer le timestamp du clic pour le calcul des CPS
             clickTimestamps.push(Date.now());
         });
 
-        // Effet de particule qui s'envole au clic
         function createFloatEffect(x, y, value) {
             const plusOne = document.createElement('div');
             const hasCollector = !!collectorWeaponBonus && collectorWeaponWeek === getWeekKey();
@@ -1789,9 +1895,7 @@
             }, 800);
         }
 
-        // --- GESTION DE LA BOUTIQUE ---
-
-        // Ouvrir / Fermer le menu
+        // --- GESTION DE LA BOUTIQUE & ONGLETS ---
         shopToggle.addEventListener('click', () => {
             shopSidebar.classList.add('open');
         });
@@ -1799,7 +1903,19 @@
             shopSidebar.classList.remove('open');
         });
 
-        // Achat Amélioration 1 (Super Pioche)
+        // Gestion du changement d'onglets
+        document.querySelectorAll('.shop-tab-btn').forEach(tabBtn => {
+            tabBtn.addEventListener('click', () => {
+                document.querySelectorAll('.shop-tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                
+                tabBtn.classList.add('active');
+                const targetTab = tabBtn.getAttribute('data-tab');
+                document.getElementById(`tab-${targetTab}`).classList.add('active');
+            });
+        });
+
+        // Achats d'améliorations
         document.getElementById('buy-up1').addEventListener('click', () => {
             const cost = getUp1Cost();
             if (clicks >= cost) {
@@ -1811,7 +1927,6 @@
             }
         });
 
-        // Achat Amélioration 2 (Forgeron de la Roche)
         document.getElementById('buy-up2').addEventListener('click', () => {
             const cost = getUp2Cost();
             if (clicks >= cost) {
@@ -1823,7 +1938,6 @@
             }
         });
 
-        // Achat Amélioration 3 (Esprit du Caillou - Auto Clicker)
         document.getElementById('buy-up3').addEventListener('click', () => {
             const cost = getUp3Cost();
             if (clicks >= cost) {
@@ -1835,11 +1949,32 @@
             }
         });
 
-        // Boucle de vérification permanente (Auto-clicker & Easter Egg)
+        // Achats & Équipement de Skins
+        document.getElementById('buy-skin-default').addEventListener('click', () => {
+            equippedSkin = 'caillou.png';
+            saveGame();
+            updateDisplay();
+        });
+
+        document.getElementById('buy-skin-lowres').addEventListener('click', () => {
+            if (!ownedSkins.includes('lowres')) {
+                if (clicks >= 331) {
+                    clicks -= 331;
+                    ownedSkins.push('lowres');
+                    equippedSkin = 'caillou bs uuuuh.png';
+                    saveGame();
+                    updateDisplay();
+                }
+            } else {
+                equippedSkin = 'caillou bs uuuuh.png';
+                saveGame();
+                updateDisplay();
+            }
+        });
+
         setInterval(() => {
             const now = Date.now();
 
-            // 1. Gérer l'auto-clicker
             if (autoClicks > 0) {
                 clicks += (autoClicks / 10);
                 if (Math.random() < (autoClicks / 10) % 1) {
@@ -1851,7 +1986,6 @@
                 updateDisplay();
             }
 
-            // 2. Vérification des clics par seconde (Easter Egg)
             clickTimestamps = clickTimestamps.filter(t => now - t < 1000);
             
             if (clickTimestamps.length >= 6) {
@@ -1861,44 +1995,39 @@
             }
         }, 100);
 
-        // --- GESTION DU LEVIER CLAIR / SOMBRE (AJOUTÉ) ---
         themeToggle.addEventListener('change', () => {
             if (themeToggle.checked) {
                 document.body.classList.add('light-mode');
                 leverLabel.textContent = "Mode Clair";
                 
-                // Relance le son depuis le début et le joue
                 lightModeSound.currentTime = 0;
-                lightModeSound.play().catch(err => {
-                    console.log("Lecture du son bloquée par le navigateur : ", err);
-                });
+                lightModeSound.play().catch(err => console.log("Son bloqué :", err));
             } else {
                 document.body.classList.remove('light-mode');
                 leverLabel.textContent = "Mode Sombre";
             }
         });
 
-        // Bouton de réinitialisation
         resetBtn.addEventListener('click', () => {
-            if (confirm("Voulez-vous vraiment redevenir une simple poussière (et perdre TOUTES vos améliorations) ?")) {
-               // --- JOUE LE SON TACO BELL ICI ---
-        resetSound.currentTime = 0;
-        resetSound.play().catch(err => console.log("Audio bloqué :", err));
-        // ----------------------- 
+            if (confirm("Voulez-vous vraiment redevenir une simple poussière (et perdre TOUTES vos améliorations et skins) ?")) {
+                resetSound.currentTime = 0;
+                resetSound.play().catch(err => console.log("Audio bloqué :", err));
+                
                 clicks = 0;
                 clickPower = 1;
                 autoClicks = 0;
                 up1Lvl = 0;
                 up2Lvl = 0;
                 up3Lvl = 0;
+                ownedSkins = ['default'];
+                equippedSkin = 'caillou.png';
                 localStorage.removeItem('caillou_leaderboard_base_clicks');
                 saveGame();
                 updateDisplay();
             }
         });
-                
 
-        // Initialisation au chargement
+        // Initialisation
         updateDisplay();
 
         // ======================================================
@@ -1958,7 +2087,6 @@
         }
 
         function openLeaderboardModal() {
-            // Afficher la boîte de rejoindre seulement si le joueur n'a pas déjà rejoint
             if (isJoinedForCurrentWeek()) {
                 leaderboardJoinBox.style.display = 'none';
             } else {
@@ -2001,7 +2129,6 @@
             const playerId = getPlayerId();
             const ref = database.ref(`leaderboard/${currentWeek}/entries/${playerId}`);
 
-            // Enregistrer les clics actuels comme base de départ pour la semaine
             localStorage.setItem('caillou_leaderboard_base_clicks', clicks);
 
             ref.set({
@@ -2029,7 +2156,6 @@
             const currentWeek = getWeekKey();
             const playerId = getPlayerId();
 
-            // Soustraire le nombre de clics au moment de l'inscription
             const baseClicks = parseInt(localStorage.getItem('caillou_leaderboard_base_clicks')) || 0;
             const leaderboardScore = Math.max(0, clicks - baseClicks);
 
@@ -2190,7 +2316,6 @@
             }
         }
 
-        // Vérifier si le joueur existe vraiment dans Firebase
         function verifyLeaderboardMembership() {
             const weekKey = getWeekKey();
             const playerId = getPlayerId();
@@ -2198,7 +2323,6 @@
 
             ref.once('value', (snapshot) => {
                 if (!snapshot.exists()) {
-                    // Le joueur n'existe pas dans Firebase, supprimer la flag localStorage
                     localStorage.removeItem('caillou_leaderboard_joined_week');
                 }
             });
@@ -2222,7 +2346,6 @@
             handleWeeklyResetAndRewards();
         }, 60000);
    </script>
-
 
     <script defer src="/_vercel/insights/script.js"></script>
 </body>
