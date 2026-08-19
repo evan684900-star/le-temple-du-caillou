@@ -532,7 +532,7 @@
     }
 
     // Écoute les nouveaux messages ajoutés
-    database.ref('messages').limitToLast(50).on('child_added', (snapshot) => {
+    database.ref('messages').limitToLast(20).on('child_added', (snapshot) => {
       const msg = snapshot.val();
       const time = formatTime(msg.timestamp);
       const badge = getChatRankBadge(msg.auteur || '');
