@@ -376,6 +376,402 @@
         height: 35px;
       }
     }
+
+    /* ===================== SYSTEME DE ROLES ===================== */
+    .roles-toggle-btn {
+      position: fixed;
+      top: 20px;
+      left: 90px;
+      z-index: 95;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 215, 0, 0.08);
+      border: 2px solid rgba(255, 215, 0, 0.5);
+      border-radius: 30px;
+      padding: 10px 18px;
+      cursor: pointer;
+      backdrop-filter: blur(5px);
+      transition: all 0.3s ease;
+      color: #FFD700;
+      font-weight: bold;
+      font-size: 1rem;
+      text-shadow: 0 0 8px rgba(255, 215, 0, 0.4);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .roles-toggle-btn:hover {
+      background: rgba(255, 215, 0, 0.18);
+      transform: scale(1.05);
+    }
+
+    .roles-toggle-btn .roles-icon {
+      font-size: 1.2rem;
+      line-height: 1;
+    }
+
+    body.light-mode .roles-toggle-btn {
+      background: rgba(255, 215, 0, 0.12);
+      border: 2px solid rgba(200, 160, 0, 0.6);
+      color: #B8860B;
+      text-shadow: none;
+    }
+
+    @media (max-width: 600px) {
+      .roles-toggle-btn {
+        top: 15px;
+        left: 75px;
+        padding: 8px 12px;
+        font-size: 0.85rem;
+      }
+    }
+
+    @media (max-width: 380px) {
+      .roles-toggle-btn {
+        top: 10px;
+        left: 65px;
+        padding: 6px 10px;
+        font-size: 0.75rem;
+      }
+      .roles-toggle-btn .roles-icon {
+        font-size: 1rem;
+      }
+    }
+
+    .roles-modal {
+      display: none;
+      position: fixed;
+      z-index: 160;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+    }
+
+    .roles-modal.open {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .roles-modal-content {
+      background: #1c1c24;
+      border: 1px solid rgba(255, 215, 0, 0.35);
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+      width: 90%;
+      max-width: 460px;
+      max-height: 82vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      color: #eee;
+    }
+
+    body.light-mode .roles-modal-content {
+      background: #ffffff;
+      color: #1c1c24;
+      border: 1px solid rgba(184, 134, 11, 0.35);
+    }
+
+    @media (max-width: 600px) {
+      .roles-modal-content {
+        width: 95%;
+        max-width: 100%;
+        max-height: 85vh;
+        border-radius: 8px;
+      }
+    }
+
+    .roles-modal-header {
+      background: #2a2a33;
+      color: #FFD700;
+      padding: 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(255, 215, 0, 0.25);
+    }
+
+    body.light-mode .roles-modal-header {
+      background: #f5f1e0;
+      color: #B8860B;
+    }
+
+    .roles-modal-header h2 {
+      margin: 0;
+      font-size: 1.15rem;
+    }
+
+    .roles-modal-close {
+      background: none;
+      border: none;
+      color: inherit;
+      font-size: 1.5rem;
+      cursor: pointer;
+      padding: 0;
+      width: 30px;
+      height: 30px;
+      line-height: 1;
+    }
+
+    .roles-modal-body {
+      padding: 18px;
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    .roles-menu-btn {
+      display: block;
+      width: 100%;
+      padding: 14px;
+      margin-bottom: 12px;
+      background: rgba(255, 215, 0, 0.1);
+      border: 1px solid rgba(255, 215, 0, 0.4);
+      border-radius: 10px;
+      color: #FFD700;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.2s ease;
+      text-align: left;
+    }
+
+    body.light-mode .roles-menu-btn {
+      background: rgba(255, 215, 0, 0.15);
+      color: #8a6d00;
+    }
+
+    .roles-menu-btn:hover {
+      background: rgba(255, 215, 0, 0.2);
+    }
+
+    .roles-back-btn {
+      background: none;
+      border: none;
+      color: #FFD700;
+      cursor: pointer;
+      font-size: 0.9rem;
+      margin-bottom: 14px;
+      padding: 0;
+    }
+
+    body.light-mode .roles-back-btn {
+      color: #B8860B;
+    }
+
+    .roles-rules-box {
+      background: rgba(255, 215, 0, 0.06);
+      border: 1px solid rgba(255, 215, 0, 0.3);
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin-bottom: 14px;
+      font-size: 0.85rem;
+      line-height: 1.5;
+    }
+
+    body.light-mode .roles-rules-box {
+      background: rgba(255, 215, 0, 0.1);
+    }
+
+    .roles-rules-box strong {
+      color: #FFD700;
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    body.light-mode .roles-rules-box strong {
+      color: #B8860B;
+    }
+
+    .roles-rules-box ul {
+      margin: 0;
+      padding-left: 18px;
+    }
+
+    #roleRequestInput {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 215, 0, 0.4);
+      background: rgba(255, 255, 255, 0.05);
+      color: inherit;
+      font-size: 1rem;
+      margin-bottom: 10px;
+    }
+
+    body.light-mode #roleRequestInput {
+      background: #fff;
+    }
+
+    .roles-submit-btn {
+      width: 100%;
+      padding: 12px;
+      background: #FFD700;
+      color: #1c1c24;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+
+    .roles-submit-btn:hover {
+      background: #e6c200;
+    }
+
+    .roles-feedback {
+      margin-top: 10px;
+      font-size: 0.85rem;
+      min-height: 1.2em;
+    }
+
+    .roles-feedback.error { color: #ff6b6b; }
+    .roles-feedback.success { color: #6bff8f; }
+
+    .role-request-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px;
+      margin-bottom: 8px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 215, 0, 0.25);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    .role-request-item:hover {
+      background: rgba(255, 215, 0, 0.1);
+    }
+
+    body.light-mode .role-request-item {
+      background: rgba(0, 0, 0, 0.03);
+    }
+
+    .role-request-empty {
+      opacity: 0.7;
+      font-size: 0.9rem;
+      text-align: center;
+      padding: 10px 0;
+    }
+
+    .role-detail-box {
+      background: rgba(255, 215, 0, 0.07);
+      border: 1px solid rgba(255, 215, 0, 0.3);
+      border-radius: 8px;
+      padding: 14px;
+      margin-bottom: 14px;
+    }
+
+    .role-detail-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .role-approve-btn, .role-reject-btn {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 0.95rem;
+    }
+
+    .role-approve-btn {
+      background: #4caf50;
+      color: #fff;
+    }
+
+    .role-reject-btn {
+      background: #e05252;
+      color: #fff;
+    }
+
+    .role-refuse-comment {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 215, 0, 0.4);
+      background: rgba(255, 255, 255, 0.05);
+      color: inherit;
+      font-size: 0.95rem;
+      margin-top: 10px;
+      resize: vertical;
+      min-height: 70px;
+    }
+
+    body.light-mode .role-refuse-comment {
+      background: #fff;
+    }
+
+    .chat-role-badge {
+      color: #FFD700;
+      font-weight: bold;
+      text-shadow: 0 0 6px rgba(255, 215, 0, 0.4);
+      margin-left: 3px;
+    }
+
+    body.light-mode .chat-role-badge {
+      color: #a8790a;
+      text-shadow: none;
+    }
+
+    /* Notification de refus au chargement du site */
+    .role-refusal-overlay {
+      display: none;
+      position: fixed;
+      z-index: 300;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.65);
+      align-items: center;
+      justify-content: center;
+    }
+
+    .role-refusal-overlay.open {
+      display: flex;
+    }
+
+    .role-refusal-box {
+      background: #1c1c24;
+      border: 1px solid rgba(255, 106, 106, 0.5);
+      border-radius: 12px;
+      padding: 22px;
+      max-width: 420px;
+      width: 90%;
+      color: #eee;
+      text-align: center;
+    }
+
+    body.light-mode .role-refusal-box {
+      background: #fff;
+      color: #1c1c24;
+    }
+
+    .role-refusal-box h3 {
+      color: #ff6b6b;
+      margin-top: 0;
+    }
+
+    .role-refusal-box button {
+      margin-top: 16px;
+      padding: 10px 20px;
+      background: #FFD700;
+      border: none;
+      border-radius: 8px;
+      color: #1c1c24;
+      font-weight: bold;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
@@ -384,6 +780,33 @@
   <button class="chat-toggle-btn" id="chatToggle" title="Ouvrir le chat">
     <img src="chatonline.png" alt="Chat">
   </button>
+
+  <!-- BOUTON ROLES A DROITE DU BOUTON DE CHAT -->
+  <button class="roles-toggle-btn" id="rolesToggle" title="Système de rôles">
+    <span class="roles-icon">🏅</span> Rôles
+  </button>
+
+  <!-- OVERLAY DE REFUS DE ROLE (affiché a la reconnexion) -->
+  <div class="role-refusal-overlay" id="roleRefusalOverlay">
+    <div class="role-refusal-box">
+      <h3>Demande de rôle refusée</h3>
+      <p id="roleRefusalMessage"></p>
+      <button id="roleRefusalClose">J'ai compris</button>
+    </div>
+  </div>
+
+  <!-- MODALE ROLES -->
+  <div class="roles-modal" id="rolesModal">
+    <div class="roles-modal-content">
+      <div class="roles-modal-header">
+        <h2>🏅 Rôles</h2>
+        <button class="roles-modal-close" id="rolesClose">&times;</button>
+      </div>
+      <div class="roles-modal-body" id="rolesModalBody">
+        <!-- Contenu généré dynamiquement en JS -->
+      </div>
+    </div>
+  </div>
 
   <!-- MODALE DE CHAT -->
   <div class="chat-modal" id="chatModal">
@@ -443,7 +866,7 @@
         chatModal.classList.remove('open');
       }
     });
-    // 1. CONFIGURATION FIREBASE
+    // 1. CONFIGURATION FIREBASE (Remplace avec tes vraies clés de l'étape 1)
     const firebaseConfig = {
       apiKey: "AIzaSyDIHWiPFPXJLxbj2WfAPW2RpsxTlajJKN4",
       authDomain: "le-temple-du-cailllou.firebaseapp.com",
@@ -462,6 +885,7 @@
     function ObtenirNomUtilisateur() {
       let pseudo = localStorage.getItem('chat_username');
       if (!pseudo) {
+        // Génère un pseudo aléatoire anonyme type "04829"
         const numAnonyme = Math.floor(10000 + Math.random() * 90000);
         pseudo = "Anonyme_" + numAnonyme;
         localStorage.setItem('chat_username', pseudo);
@@ -478,6 +902,9 @@
         monPseudo = nouveau.trim();
         localStorage.setItem('chat_username', monPseudo);
         document.getElementById('user-display').innerText = monPseudo;
+        if (typeof updateMonPseudoKey === 'function') {
+          updateMonPseudoKey();
+        }
       }
     }
 
@@ -490,13 +917,16 @@
       const warningEl = document.getElementById('chatWarning');
       const texte = input.value.trim();
 
+      // Réinitialiser le message d'avertissement
       warningEl.textContent = '';
 
+      // Vérifier si le message est vide
       if (texte === "") {
         warningEl.textContent = "Envoie des vrais messages";
         return;
       }
 
+      // Vérifier le cooldown de 3 secondes
       const now = Date.now();
       if (now - lastMessageTime < SPAM_COOLDOWN) {
         const timeRemaining = Math.ceil((SPAM_COOLDOWN - (now - lastMessageTime)) / 1000);
@@ -504,8 +934,10 @@
         return;
       }
 
+      // Mettre à jour le timestamp du dernier message
       lastMessageTime = now;
 
+      // On pousse le message dans le chemin "messages/"
       database.ref('messages').push({
         auteur: monPseudo,
         texte: texte,
@@ -517,6 +949,7 @@
     // 4. RECEVOIR LES MESSAGES EN TEMPS RÉEL
     const chatBox = document.getElementById('chat-box');
 
+    // Fonction pour formater l'heure
     function formatTime(timestamp) {
       const date = new Date(timestamp);
       const hours = String(date.getHours()).padStart(2, '0');
@@ -524,18 +957,350 @@
       return `${hours}:${minutes}`;
     }
 
-    database.ref('messages').limitToLast(20).on('child_added', (snapshot) => {
+    // Écoute les nouveaux messages ajoutés
+    database.ref('messages').limitToLast(50).on('child_added', (snapshot) => {
       const msg = snapshot.val();
       const time = formatTime(msg.timestamp);
-      const badge = getChatRankBadge(msg.auteur || '');
+      const badge = (typeof getChatRankBadge === 'function' ? getChatRankBadge(msg.auteur || '') : '') + getRoleBadge(msg.auteur || '');
       
       const msgElement = document.createElement('div');
       msgElement.className = 'message';
       msgElement.innerHTML = `<span class="author">${msg.auteur}${badge} <span style="font-size: 0.85rem; color: #999; font-weight: normal;">${time}</span></span> ${msg.texte}`;
       
       chatBox.appendChild(msgElement);
+      // Auto-scroll vers le bas
       chatBox.scrollTop = chatBox.scrollHeight;
     });
+
+    // ===================================================================
+    // ================== SYSTEME DE ROLES (FIREBASE) ==================
+    // ===================================================================
+
+    const ROLE_ADMIN_CODE = "6688";
+
+    // Clé Firebase valide (pas de . # $ [ ] /)
+    function sanitizeKey(str) {
+      return String(str).trim().replace(/[.#$\[\]\/]/g, "_");
+    }
+
+    let monPseudoKey = sanitizeKey(monPseudo);
+    function updateMonPseudoKey() {
+      monPseudoKey = sanitizeKey(monPseudo);
+      verifierRefusEnAttente();
+    }
+
+    // --- Cache local des rôles approuvés (pseudo -> role) pour affichage dans le chat ---
+    let rolesCache = {};
+    database.ref('roles').on('value', (snapshot) => {
+      rolesCache = snapshot.val() || {};
+    });
+
+    function getRoleBadge(authorName) {
+      if (!authorName) return '';
+      const key = sanitizeKey(authorName);
+      const entry = rolesCache[key];
+      if (!entry || !entry.role) return '';
+      return ` <span class="chat-role-badge">[${entry.role}]</span>`;
+    }
+
+    // --- Filtre anti-emoji ---
+    const emojiRegex = /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{2190}-\u{21FF}\u{2B00}-\u{2BFF}\u{FE0F}]/u;
+
+    // --- Petite liste de mots offensants (filtre basique, à compléter si besoin) ---
+    const motsOffensants = ["con", "connard", "pute", "salope", "encule", "enculé", "batard", "bâtard", "nique", "pd", "negro", "nègre", "merde", "fdp"];
+
+    function contientMotOffensant(texte) {
+      const t = texte.toLowerCase();
+      return motsOffensants.some(mot => t.includes(mot));
+    }
+
+    // --- Détection basique d'une suite de caractères aléatoires ---
+    function sembleAleatoire(texte) {
+      const t = texte.trim();
+      if (t.length < 2) return true;
+      // Pas de voyelle du tout sur un mot assez long => probablement aléatoire
+      if (t.length >= 4 && !/[aeiouyàâäéèêëîïôöùûüyAEIOUYÀÂÄÉÈÊËÎÏÔÖÙÛÜY]/.test(t)) return true;
+      // Caractère répété 4 fois de suite ou plus
+      if (/(.)\1{3,}/.test(t)) return true;
+      // Trop de caractères non alphabétiques (hors espace/tiret/apostrophe)
+      const nonAlpha = (t.match(/[^a-zA-ZàâäéèêëîïôöùûüçÀÂÄÉÈÊËÎÏÔÖÙÛÜÇ \-']/g) || []).length;
+      if (nonAlpha / t.length > 0.3) return true;
+      return false;
+    }
+
+    // --- Navigation dans la modale Rôles ---
+    const rolesModal = document.getElementById('rolesModal');
+    const rolesToggle = document.getElementById('rolesToggle');
+    const rolesClose = document.getElementById('rolesClose');
+    const rolesModalBody = document.getElementById('rolesModalBody');
+
+    rolesToggle.addEventListener('click', () => {
+      rolesModal.classList.add('open');
+      afficherMenuRoles();
+    });
+
+    rolesClose.addEventListener('click', () => {
+      rolesModal.classList.remove('open');
+    });
+
+    rolesModal.addEventListener('click', (e) => {
+      if (e.target === rolesModal) {
+        rolesModal.classList.remove('open');
+      }
+    });
+
+    // --- VUE 1 : Menu principal ---
+    function afficherMenuRoles() {
+      rolesModalBody.innerHTML = `
+        <button class="roles-menu-btn" id="btnDemanderRole">📝 Faire une demande de rôle</button>
+        <button class="roles-menu-btn" id="btnVoirDemandes">📋 Voir les demandes</button>
+      `;
+      document.getElementById('btnDemanderRole').addEventListener('click', afficherFormulaireDemande);
+      document.getElementById('btnVoirDemandes').addEventListener('click', afficherListeDemandes);
+    }
+
+    // --- VUE 2 : Formulaire de demande ---
+    function afficherFormulaireDemande() {
+      rolesModalBody.innerHTML = `
+        <button class="roles-back-btn" id="rolesBack1">&larr; Retour</button>
+        <div class="roles-rules-box">
+          <strong>Règles :</strong>
+          <ul>
+            <li>Pas de rôle offensant</li>
+            <li>Pas une suite de caractères aléatoires</li>
+            <li>Pas d'emoji (ça ne marche pas sinon)</li>
+            <li>1 rôle par personne (vous pouvez le changer en le demandant sur le chat)</li>
+          </ul>
+          Votre demande peut prendre 1 jour à être approuvée.
+        </div>
+        <input type="text" id="roleRequestInput" placeholder="Écris le rôle que tu veux..." maxlength="30">
+        <button class="roles-submit-btn" id="roleRequestSubmit">Envoyer la demande</button>
+        <div class="roles-feedback" id="roleRequestFeedback"></div>
+      `;
+      document.getElementById('rolesBack1').addEventListener('click', afficherMenuRoles);
+      document.getElementById('roleRequestSubmit').addEventListener('click', envoyerDemandeRole);
+    }
+
+    function envoyerDemandeRole() {
+      const input = document.getElementById('roleRequestInput');
+      const feedback = document.getElementById('roleRequestFeedback');
+      const texte = input.value.trim();
+
+      feedback.textContent = '';
+      feedback.className = 'roles-feedback';
+
+      if (texte === '') {
+        feedback.textContent = "Écris le rôle que tu souhaites.";
+        feedback.classList.add('error');
+        return;
+      }
+
+      if (emojiRegex.test(texte)) {
+        feedback.textContent = "Pas d'emoji dans ta demande, ça ne marche pas.";
+        feedback.classList.add('error');
+        return;
+      }
+
+      if (contientMotOffensant(texte)) {
+        feedback.textContent = "Ce rôle est considéré comme offensant, choisis-en un autre.";
+        feedback.classList.add('error');
+        return;
+      }
+
+      if (sembleAleatoire(texte)) {
+        feedback.textContent = "Ce rôle ressemble à une suite de caractères aléatoires.";
+        feedback.classList.add('error');
+        return;
+      }
+
+      feedback.textContent = "Envoi en cours...";
+
+      // 1 rôle par personne : vérifie si un rôle est déjà approuvé
+      database.ref('roles/' + monPseudoKey).once('value').then((snap) => {
+        if (snap.exists()) {
+          feedback.textContent = "Tu as déjà un rôle. Demande un changement directement sur le chat.";
+          feedback.classList.add('error');
+          return;
+        }
+
+        // Vérifie s'il y a déjà une demande en attente
+        return database.ref('roleRequests').orderByChild('pseudoKey').equalTo(monPseudoKey).once('value').then((reqSnap) => {
+          const existing = reqSnap.val() || {};
+          const dejaEnAttente = Object.values(existing).some(r => r.status === 'pending');
+          if (dejaEnAttente) {
+            feedback.textContent = "Tu as déjà une demande en attente.";
+            feedback.classList.add('error');
+            return;
+          }
+
+          return database.ref('roleRequests').push({
+            pseudo: monPseudo,
+            pseudoKey: monPseudoKey,
+            roleDemande: texte,
+            timestamp: Date.now(),
+            status: 'pending'
+          }).then(() => {
+            feedback.textContent = "Ta demande a été envoyée ! Elle peut prendre 1 jour à être approuvée.";
+            feedback.classList.remove('error');
+            feedback.classList.add('success');
+            input.value = '';
+          });
+        });
+      }).catch((err) => {
+        feedback.textContent = "Erreur lors de l'envoi. Réessaie.";
+        feedback.classList.add('error');
+      });
+    }
+
+    // --- VUE 3 : Liste des demandes (nom seulement) ---
+    function afficherListeDemandes() {
+      rolesModalBody.innerHTML = `
+        <button class="roles-back-btn" id="rolesBack2">&larr; Retour</button>
+        <div id="roleRequestsList"><div class="role-request-empty">Chargement...</div></div>
+      `;
+      document.getElementById('rolesBack2').addEventListener('click', afficherMenuRoles);
+
+      database.ref('roleRequests').orderByChild('status').equalTo('pending').once('value').then((snap) => {
+        const data = snap.val() || {};
+        const listEl = document.getElementById('roleRequestsList');
+        const entries = Object.entries(data);
+
+        if (entries.length === 0) {
+          listEl.innerHTML = '<div class="role-request-empty">Aucune demande en attente.</div>';
+          return;
+        }
+
+        listEl.innerHTML = '';
+        entries.forEach(([id, req]) => {
+          const item = document.createElement('div');
+          item.className = 'role-request-item';
+          item.innerHTML = `<span>${req.pseudo}</span><span>›</span>`;
+          item.addEventListener('click', () => demanderCodeAdmin(id, req));
+          listEl.appendChild(item);
+        });
+      });
+    }
+
+    // --- Demande le code administrateur avant d'afficher le détail ---
+    function demanderCodeAdmin(id, req) {
+      const code = prompt("Entre le code pour voir cette demande :");
+      if (code === null) return;
+      if (code.trim() !== ROLE_ADMIN_CODE) {
+        alert("Code incorrect.");
+        return;
+      }
+      afficherDetailDemande(id, req);
+    }
+
+    // --- VUE 4 : Détail d'une demande + boutons approuver/désapprouver ---
+    function afficherDetailDemande(id, req) {
+      rolesModalBody.innerHTML = `
+        <button class="roles-back-btn" id="rolesBack3">&larr; Retour</button>
+        <div class="role-detail-box">
+          <div><strong>Personne :</strong> ${req.pseudo}</div>
+          <div><strong>Rôle demandé :</strong> ${req.roleDemande}</div>
+          <div class="role-detail-actions">
+            <button class="role-approve-btn" id="btnApprouver">✅ J'approuve</button>
+            <button class="role-reject-btn" id="btnDesapprouver">❌ Je désapprouve</button>
+          </div>
+        </div>
+        <div class="roles-feedback" id="roleDetailFeedback"></div>
+      `;
+      document.getElementById('rolesBack3').addEventListener('click', afficherListeDemandes);
+      document.getElementById('btnApprouver').addEventListener('click', () => approuverDemande(id, req));
+      document.getElementById('btnDesapprouver').addEventListener('click', () => afficherFormulaireRefus(id, req));
+    }
+
+    function approuverDemande(id, req) {
+      const feedback = document.getElementById('roleDetailFeedback');
+      feedback.textContent = "Traitement...";
+      feedback.className = 'roles-feedback';
+
+      database.ref('roles/' + req.pseudoKey).set({
+        pseudo: req.pseudo,
+        role: req.roleDemande,
+        timestamp: Date.now()
+      }).then(() => {
+        return database.ref('roleRequests/' + id).update({ status: 'approved' });
+      }).then(() => {
+        feedback.textContent = "Rôle approuvé pour " + req.pseudo + " !";
+        feedback.classList.add('success');
+        setTimeout(afficherListeDemandes, 1200);
+      }).catch(() => {
+        feedback.textContent = "Erreur lors de l'approbation.";
+        feedback.classList.add('error');
+      });
+    }
+
+    // --- VUE 5 : Formulaire de commentaire de refus ---
+    function afficherFormulaireRefus(id, req) {
+      rolesModalBody.innerHTML = `
+        <button class="roles-back-btn" id="rolesBack4">&larr; Retour</button>
+        <div class="role-detail-box">
+          <div><strong>Personne :</strong> ${req.pseudo}</div>
+          <div><strong>Rôle demandé :</strong> ${req.roleDemande}</div>
+          <p>Explique pourquoi tu refuses cette demande (ce message sera affiché à la personne à sa prochaine connexion) :</p>
+          <textarea class="role-refuse-comment" id="refuseComment" placeholder="Raison du refus..."></textarea>
+          <div class="role-detail-actions">
+            <button class="role-reject-btn" id="btnConfirmerRefus">Envoyer le refus</button>
+          </div>
+        </div>
+        <div class="roles-feedback" id="roleRefuseFeedback"></div>
+      `;
+      document.getElementById('rolesBack4').addEventListener('click', () => afficherDetailDemande(id, req));
+      document.getElementById('btnConfirmerRefus').addEventListener('click', () => confirmerRefus(id, req));
+    }
+
+    function confirmerRefus(id, req) {
+      const comment = document.getElementById('refuseComment').value.trim();
+      const feedback = document.getElementById('roleRefuseFeedback');
+
+      if (comment === '') {
+        feedback.textContent = "Écris un commentaire expliquant le refus.";
+        feedback.className = 'roles-feedback error';
+        return;
+      }
+
+      feedback.textContent = "Traitement...";
+      feedback.className = 'roles-feedback';
+
+      database.ref('roleRefusals/' + req.pseudoKey).set({
+        pseudo: req.pseudo,
+        roleDemande: req.roleDemande,
+        message: comment,
+        timestamp: Date.now(),
+        vu: false
+      }).then(() => {
+        return database.ref('roleRequests/' + id).update({ status: 'refused' });
+      }).then(() => {
+        feedback.textContent = "Refus envoyé à " + req.pseudo + ".";
+        feedback.classList.add('success');
+        setTimeout(afficherListeDemandes, 1200);
+      }).catch(() => {
+        feedback.textContent = "Erreur lors de l'envoi du refus.";
+        feedback.classList.add('error');
+      });
+    }
+
+    // --- Vérifie au chargement si l'utilisateur a un refus non lu ---
+    function verifierRefusEnAttente() {
+      database.ref('roleRefusals/' + monPseudoKey).once('value').then((snap) => {
+        const data = snap.val();
+        if (data && !data.vu) {
+          const overlay = document.getElementById('roleRefusalOverlay');
+          const msgEl = document.getElementById('roleRefusalMessage');
+          msgEl.textContent = `Ta demande pour le rôle "${data.roleDemande}" a été refusée. Raison : ${data.message}`;
+          overlay.classList.add('open');
+
+          document.getElementById('roleRefusalClose').addEventListener('click', () => {
+            overlay.classList.remove('open');
+            database.ref('roleRefusals/' + monPseudoKey).update({ vu: true });
+          }, { once: true });
+        }
+      });
+    }
+
+    verifierRefusEnAttente();
   </script>
 
     <style>
@@ -560,11 +1325,13 @@
             transition: background 0.3s ease, color 0.3s ease;
         }
 
+        /* --- CLASSE POUR LE MODE CLAIR --- */
         body.light-mode {
             background: radial-gradient(circle, #f0f0f5 0%, #dcdce5 100%);
             color: #1c1c24;
         }
 
+        /* Conteneur principal */
         .game-container {
             display: flex;
             flex-direction: column;
@@ -576,6 +1343,7 @@
             padding: 0 15px;
         }
 
+        /* Titre discret en haut */
         h1 {
             font-size: 1.5rem;
             letter-spacing: 2px;
@@ -589,6 +1357,7 @@
             color: #4a4a5a;
         }
 
+        /* Zone centrale du caillou */
         .caillou-wrapper {
             position: relative;
             display: flex;
@@ -597,6 +1366,7 @@
             flex-grow: 1;
         }
 
+        /* Effet d'aura derrière le caillou qui grandit avec le score */
         .halo {
             position: absolute;
             width: 300px;
@@ -621,10 +1391,12 @@
             -webkit-user-drag: none;
         }
 
+        /* Animation de clic (enfoncement rapide) */
         .caillou-img:active {
             transform: scale(0.93) rotate(-1deg);
         }
 
+        /* Effet d'envol du +1 */
         .plus-one {
             position: absolute;
             color: #ffffff;
@@ -651,6 +1423,7 @@
             }
         }
 
+        /* Fenêtre du bas (Statut et Rang) */
         .status-panel {
             background: rgba(255, 255, 255, 0.03);
             border: 1px solid rgba(255, 255, 255, 0.08);
@@ -700,6 +1473,7 @@
             color: #2c2c35;
         }
 
+        /* Le nom du rang qui tremble */
         .rank-name {
             display: inline-block;
             font-weight: 800;
@@ -708,6 +1482,7 @@
             animation: shake 0.2s infinite linear;
         }
 
+        /* Keyframes pour le tremblement dynamique */
         @keyframes shake {
             0% { transform: translate(0, 0) rotate(0deg); }
             10% { transform: translate(calc(-0.5px * var(--intensity)), calc(-0.5px * var(--intensity))) rotate(calc(-0.2deg * var(--intensity))); }
@@ -722,6 +1497,7 @@
             100% { transform: translate(0, 0) rotate(0deg); }
         }
 
+        /* Bouton de réinitialisation discret */
         .reset-btn {
             position: absolute;
             bottom: 15px;
@@ -744,6 +1520,8 @@
         }
 
         /* --- STYLES DE LA BOUTIQUE --- */
+        
+        /* Bouton pour ouvrir la boutique */
         .shop-toggle-btn {
             position: absolute;
             top: 20px;
@@ -772,12 +1550,13 @@
             background: rgba(0, 0, 0, 0.1);
         }
 
+        /* Panneau coulissant de la boutique */
         .shop-sidebar {
             position: fixed;
             top: 0;
-            right: -340px;
-            width: 320px;
-            max-width: 88%;
+            right: -320px; /* Caché par défaut */
+            width: 300px;
+            max-width: 85%;
             height: 100%;
             background: rgba(13, 13, 17, 0.95);
             border-left: 1px solid rgba(255, 255, 255, 0.08);
@@ -789,7 +1568,7 @@
             box-sizing: border-box;
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 20px;
         }
         .shop-sidebar.open {
             right: 0;
@@ -800,6 +1579,7 @@
             box-shadow: -10px 0 30px rgba(0, 0, 0, 0.1);
         }
 
+        /* Bouton pour fermer la boutique */
         .shop-close-btn {
             align-self: flex-end;
             background: none;
@@ -820,71 +1600,25 @@
             font-size: 1.4rem;
             font-weight: bold;
             color: #ffb703;
-            margin-bottom: 0px;
+            margin-bottom: 5px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 10px;
             text-transform: uppercase;
             letter-spacing: 1px;
         }
-
-        /* BARRE D'ONGLETS BOUTIQUE */
-        .shop-tabs {
-            display: flex;
-            gap: 6px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            padding-bottom: 10px;
-        }
-        body.light-mode .shop-tabs {
+        body.light-mode .shop-title {
             border-bottom: 1px solid rgba(0, 0, 0, 0.1);
         }
 
-        .shop-tab-btn {
-            flex: 1;
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: #8a8a9e;
-            padding: 8px 6px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.78rem;
-            font-weight: bold;
-            transition: all 0.2s ease;
-        }
-        .shop-tab-btn:hover {
-            background: rgba(255, 255, 255, 0.08);
-            color: #fff;
-        }
-        .shop-tab-btn.active {
-            background: #ffb703;
-            color: #0d0d11;
-            border-color: #ffb703;
-        }
-        body.light-mode .shop-tab-btn {
-            background: rgba(0, 0, 0, 0.04);
-            border-color: rgba(0, 0, 0, 0.08);
-            color: #5a5a6a;
-        }
-        body.light-mode .shop-tab-btn:hover {
-            background: rgba(0, 0, 0, 0.08);
-            color: #1c1c24;
-        }
-        body.light-mode .shop-tab-btn.active {
-            background: #ffb703;
-            color: #1c1c24;
-        }
-
-        .shop-items-container {
-            flex-grow: 1;
-            overflow-y: auto;
-        }
-
-        .tab-content {
-            display: none;
+        .shop-items {
+            display: flex;
             flex-direction: column;
             gap: 15px;
-        }
-        .tab-content.active {
-            display: flex;
+            overflow-y: auto;
+            flex-grow: 1;
         }
 
+        /* Un article de la boutique */
         .shop-item {
             background: rgba(255, 255, 255, 0.03);
             border: 1px solid rgba(255, 255, 255, 0.08);
@@ -906,27 +1640,6 @@
         body.light-mode .shop-item:hover {
             background: rgba(0, 0, 0, 0.04);
             border-color: rgba(0, 0, 0, 0.1);
-        }
-
-        .skin-header-wrapper {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .skin-preview-thumb {
-            width: 48px;
-            height: 48px;
-            object-fit: contain;
-            background: rgba(0, 0, 0, 0.25);
-            border-radius: 8px;
-            padding: 4px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            flex-shrink: 0;
-        }
-        body.light-mode .skin-preview-thumb {
-            background: rgba(255, 255, 255, 0.5);
-            border: 1px solid rgba(0, 0, 0, 0.1);
         }
 
         .item-info {
@@ -955,6 +1668,7 @@
             color: #5a5a6a;
         }
 
+        /* Bouton d'achat */
         .buy-btn {
             background: #ffb703;
             color: #0d0d11;
@@ -985,13 +1699,7 @@
             border: 1px solid rgba(0, 0, 0, 0.03);
         }
 
-        .buy-btn.equipped {
-            background: #00f5d4 !important;
-            color: #0d0d11 !important;
-            cursor: default !important;
-        }
-
-        /* EASTER EGG */
+        /* STYLE DE L'EASTER EGG */
         .easter-egg-msg {
             position: fixed;
             top: 50%;
@@ -1020,7 +1728,7 @@
             100% { transform: translate(-50%, -50%) scale(1.1); }
         }
 
-        /* LEVIER DE THÈME */
+        /* --- STYLES DU LEVIER DE TRADUCTION DE MODE (AJOUTÉ) --- */
         .lever-container {
             position: absolute;
             bottom: 15px;
@@ -1082,6 +1790,7 @@
             border: 1px solid rgba(0, 0, 0, 0.1);
         }
 
+        /* --- RESPONSIVE : TÉLÉPHONES ET PETITS ÉCRANS --- */
         @media (max-width: 600px) {
             h1 {
                 font-size: 1.1rem;
@@ -1103,7 +1812,7 @@
                 width: 100%;
                 max-width: 100%;
                 padding: 15px 20px;
-                margin-bottom: 60px;
+                margin-bottom: 60px; /* laisse la place au levier / bouton reset en bas */
             }
 
             .click-count {
@@ -1126,7 +1835,7 @@
             }
 
             .shop-sidebar {
-                width: 280px;
+                width: 260px;
             }
 
             .easter-egg-msg {
@@ -1175,7 +1884,7 @@
             }
         }
 
-        /* CLASSEMENT HEBDOMADAIRE */
+        /* --- CLASSEMENT HEBDOMADAIRE --- */
         .leaderboard-toggle-btn {
             position: absolute;
             top: 20px;
@@ -1501,76 +2210,40 @@
         <button class="shop-close-btn" id="shopClose">✕</button>
         <div class="shop-title">Boutique Divine</div>
         
-        <!-- Navigation par onglets -->
-        <div class="shop-tabs">
-            <button class="shop-tab-btn active" data-tab="upgrades">Bonus & Armes</button>
-            <button class="shop-tab-btn" data-tab="skins">Skins et pack de skins</button>
-        </div>
-
-        <div class="shop-items-container">
-            <!-- ONGLET 1 : AMÉLIORATIONS & BONUS -->
-            <div class="tab-content active" id="tab-upgrades">
-                <div class="shop-item collector-item">
-                    <div class="item-info">
-                        <span class="item-name collector-name">Arme collector</span>
-                        <span class="item-desc">Bonus multicolore de <b>+100 à +1000</b> sur chaque clic si tu as gagné la semaine.<br><span class="collector-state" id="collector-state">Indisponible à l'achat</span></span>
-                    </div>
-                    <button class="buy-btn" id="buy-collector" disabled>Indisponible à l'achat</button>
+        <div class="shop-items">
+            <div class="shop-item collector-item">
+                <div class="item-info">
+                    <span class="item-name collector-name">Arme collector</span>
+                    <span class="item-desc">Bonus multicolore de <b>+100 à +1000</b> sur chaque clic si tu as gagné la semaine.<br><span class="collector-state" id="collector-state">Indisponible à l'achat</span></span>
                 </div>
-
-                <!-- Power-up 1 -->
-                <div class="shop-item">
-                    <div class="item-info">
-                        <span class="item-name">Super Pioche</span>
-                        <span class="item-desc">Augmente la puissance de chaque clic de <b>+1</b>.<br>(Niveau : <span id="up1-lvl">0</span>)</span>
-                    </div>
-                    <button class="buy-btn" id="buy-up1">Acheter : <span id="up1-cost">30</span> clics</button>
-                </div>
-
-                <!-- Power-up 2 -->
-                <div class="shop-item">
-                    <div class="item-info">
-                        <span class="item-name">Forgeron de la Roche</span>
-                        <span class="item-desc">Ajoute un immense boost de <b>+5</b> par clic.<br>(Niveau : <span id="up2-lvl">0</span>)</span>
-                    </div>
-                    <button class="buy-btn" id="buy-up2">Acheter : <span id="up2-cost">150</span> clics</button>
-                </div>
-
-                <!-- Power-up 3 (Auto-clicker) -->
-                <div class="shop-item">
-                    <div class="item-info">
-                        <span class="item-name">Esprit du Caillou</span>
-                        <span class="item-desc">Génère automatiquement <b>+1</b> clic chaque seconde.<br>(Niveau : <span id="up3-lvl">0</span>)</span>
-                    </div>
-                    <button class="buy-btn" id="buy-up3">Acheter : <span id="up3-cost">100</span> clics</button>
-                </div>
+                <button class="buy-btn" id="buy-collector" disabled>Indisponible à l'achat</button>
             </div>
 
-            <!-- ONGLET 2 : SKINS ET PACK DE SKINS -->
-            <div class="tab-content" id="tab-skins">
-                <!-- Skin classique (De base) -->
-                <div class="shop-item">
-                    <div class="skin-header-wrapper">
-                        <img src="caillou.png" alt="Caillou classique" class="skin-preview-thumb">
-                        <div class="item-info">
-                            <span class="item-name">Caillou Classique</span>
-                            <span class="item-desc">Le caillou légendaire et sacré (osez me dire qu'il est pas beau)</span>
-                        </div>
-                    </div>
-                    <button class="buy-btn" id="buy-skin-default">Équipé</button>
+            <!-- Power-up 1 -->
+            <div class="shop-item">
+                <div class="item-info">
+                    <span class="item-name">Super Pioche</span>
+                    <span class="item-desc">Augmente la puissance de chaque clic de <b>+1</b>.<br>(Niveau : <span id="up1-lvl">0</span>)</span>
                 </div>
+                <button class="buy-btn" id="buy-up1">Acheter : <span id="up1-cost">30</span> clics</button>
+            </div>
 
-                <!-- Nouveau Skin : Caillou basse qualité -->
-                <div class="shop-item">
-                    <div class="skin-header-wrapper">
-                        <img src="caillou bs uuuuh.png" alt="caillou sous basse qualité" class="skin-preview-thumb">
-                        <div class="item-info">
-                            <span class="item-name">caillou sous basse qualité</span>
-                            <span class="item-desc">Pourquoi pas ?</span>
-                        </div>
-                    </div>
-                    <button class="buy-btn" id="buy-skin-lowres">Acheter : 331 clics</button>
+            <!-- Power-up 2 -->
+            <div class="shop-item">
+                <div class="item-info">
+                    <span class="item-name">Forgeron de la Roche</span>
+                    <span class="item-desc">Ajoute un immense boost de <b>+5</b> par clic.<br>(Niveau : <span id="up2-lvl">0</span>)</span>
                 </div>
+                <button class="buy-btn" id="buy-up2">Acheter : <span id="up2-cost">150</span> clics</button>
+            </div>
+
+            <!-- Power-up 3 (Auto-clicker) -->
+            <div class="shop-item">
+                <div class="item-info">
+                    <span class="item-name">Esprit du Caillou</span>
+                    <span class="item-desc">Génère automatiquement <b>+1</b> clic chaque seconde.<br>(Niveau : <span id="up3-lvl">0</span>)</span>
+                </div>
+                <button class="buy-btn" id="buy-up3">Acheter : <span id="up3-cost">100</span> clics</button>
             </div>
         </div>
     </div>
@@ -1591,7 +2264,7 @@
             <div class="leaderboard-body">
                 <div class="leaderboard-join-box" id="leaderboardJoinBox">
                     <h3>Veux-tu rejoindre le classement ?</h3>
-                    <p>Chaque semaine, le plus grand culte du caillou gagne une arme collector avec un bonus aléatoire de 100 à 1000 points !!! <br> Au fait pour voir les règles du classement appuie sur la trophée. </p>
+                    <p>Chaque semaine, le plus grand culte du caillou gagne une arme collector avec un bonus aléatoire de 100 à 1000 points.</p>
                     <div class="leaderboard-actions">
                         <button class="leaderboard-btn primary" id="joinLeaderboardBtn">Oui, rejoindre</button>
                         <button class="leaderboard-btn secondary" id="skipLeaderboardBtn">Pas maintenant</button>
@@ -1606,7 +2279,6 @@
                         <li>Le premier du classement gagne une arme collector.</li>
                         <li>Cette arme donne un bonus aléatoire de 100 à 1000 points.</li>
                         <li>Le classement se réinitialise automatiquement chaque semaine.</li>
-                        <li>Appuie n'importe où pour fermer</li>
                     </ul>
                 </div>
 
@@ -1629,7 +2301,7 @@
         </div>
     </div>
 
-    <!-- Levier Thème Sombre / Clair -->
+    <!-- Levier Thème Sombre / Clair (AJOUTÉ) -->
     <div class="lever-container">
         <span id="leverLabel">Mode Sombre</span>
         <label class="switch-lever">
@@ -1641,6 +2313,7 @@
     <button class="reset-btn" id="reset">Réinitialiser</button>
 
     <script>
+        //son taco bell
         const resetSound = document.getElementById('resetSound');
         
         // Récupération des éléments DOM
@@ -1651,10 +2324,12 @@
         const resetBtn = document.getElementById('reset');
         const easterEggEl = document.getElementById('easterEgg');
         
+        // Éléments du levier et du son (AJOUTÉS)
         const themeToggle = document.getElementById('themeToggle');
         const lightModeSound = document.getElementById('lightModeSound');
         const leverLabel = document.getElementById('leverLabel');
 
+        // Éléments de la boutique
         const shopToggle = document.getElementById('shopToggle');
         const shopSidebar = document.getElementById('shopSidebar');
         const shopClose = document.getElementById('shopClose');
@@ -1666,10 +2341,7 @@
         let collectorWeaponBonus = parseInt(localStorage.getItem('caillou_collector_bonus')) || 0;
         let collectorWeaponWeek = localStorage.getItem('caillou_collector_week') || null;
 
-        // GESTION DES SKINS
-        let ownedSkins = JSON.parse(localStorage.getItem('caillou_owned_skins')) || ['default'];
-        let equippedSkin = localStorage.getItem('caillou_equipped_skin') || 'caillou.png';
-
+        // Tableau pour suivre les timestamps des clics (Easter egg)
         let clickTimestamps = [];
 
         // Niveaux des améliorations
@@ -1677,10 +2349,12 @@
         let up2Lvl = parseInt(localStorage.getItem('caillou_up2_lvl')) || 0;
         let up3Lvl = parseInt(localStorage.getItem('caillou_up3_lvl')) || 0;
 
+        // Calcul dynamique des coûts des améliorations
         const getUp1Cost = () => Math.round(30 * Math.pow(1.5, up1Lvl));
         const getUp2Cost = () => Math.round(150 * Math.pow(1.6, up2Lvl));
         const getUp3Cost = () => Math.round(100 * Math.pow(1.5, up3Lvl));
 
+        // Configuration des rangs
         const ranks = [
             { limit: 0, name: "Poussière", intensity: 0 },
             { limit: 10, name: "Apprenti Caillou", intensity: 0.5 },
@@ -1703,6 +2377,7 @@
             { limit: 40000, name: "Le big bang caillouteux (oui c'est français)", intensity: 99 }
         ];
 
+        // Sauvegarder toute la progression
         function saveGame() {
             localStorage.setItem('caillou_clicks', clicks);
             localStorage.setItem('caillou_clickPower', clickPower);
@@ -1712,8 +2387,6 @@
             localStorage.setItem('caillou_up3_lvl', up3Lvl);
             localStorage.setItem('caillou_collector_bonus', collectorWeaponBonus);
             localStorage.setItem('caillou_collector_week', collectorWeaponWeek || '');
-            localStorage.setItem('caillou_owned_skins', JSON.stringify(ownedSkins));
-            localStorage.setItem('caillou_equipped_skin', equippedSkin);
         }
 
         function clearCollectorWeapon() {
@@ -1740,6 +2413,7 @@
             }
         }
 
+        // Commandes disponibles dans la console du navigateur
         window.caillouCheats = {
             addPoints(amount = 1000) {
                 clicks += Number(amount) || 0;
@@ -1772,14 +2446,19 @@
                 up1Lvl = 0;
                 up2Lvl = 0;
                 up3Lvl = 0;
-                ownedSkins = ['default'];
-                equippedSkin = 'caillou.png';
                 saveGame();
                 updateDisplay();
                 return 'Le caillou a été réinitialisé.';
             },
             status() {
-                return { clicks, clickPower, autoClicks, up1Lvl, up2Lvl, up3Lvl, ownedSkins, equippedSkin };
+                return {
+                    clicks,
+                    clickPower,
+                    autoClicks,
+                    up1Lvl,
+                    up2Lvl,
+                    up3Lvl
+                };
             }
         };
 
@@ -1800,51 +2479,14 @@
             document.getElementById('buy-up1').disabled = clicks < cost1;
             document.getElementById('buy-up2').disabled = clicks < cost2;
             document.getElementById('buy-up3').disabled = clicks < cost3;
-            
             updateCollectorShopState();
-            updateSkinsShop();
-        }
-
-        // Mettre à jour l'affichage des skins dans la boutique
-        function updateSkinsShop() {
-            const btnDefault = document.getElementById('buy-skin-default');
-            const btnLowres = document.getElementById('buy-skin-lowres');
-
-            // Skin par défaut
-            if (equippedSkin === 'caillou.png') {
-                btnDefault.textContent = "Équipé";
-                btnDefault.disabled = true;
-                btnDefault.className = "buy-btn equipped";
-            } else {
-                btnDefault.textContent = "Équiper";
-                btnDefault.disabled = false;
-                btnDefault.className = "buy-btn";
-            }
-
-            // Skin bas-débit / basse qualité
-            const hasLowres = ownedSkins.includes('lowres');
-            if (equippedSkin === 'caillou bs uuuuh.png') {
-                btnLowres.textContent = "Équipé";
-                btnLowres.disabled = true;
-                btnLowres.className = "buy-btn equipped";
-            } else if (hasLowres) {
-                btnLowres.textContent = "Équiper";
-                btnLowres.disabled = false;
-                btnLowres.className = "buy-btn";
-            } else {
-                btnLowres.textContent = "Acheter : 331 clics";
-                btnLowres.disabled = clicks < 331;
-                btnLowres.className = "buy-btn";
-            }
         }
 
         // Mettre à jour l'affichage général
         function updateDisplay() {
             counterEl.textContent = clicks;
 
-            // Mettre à jour l'image du caillou
-            caillou.src = equippedSkin;
-
+            // Trouver le rang correspondant
             let currentRank = ranks[0];
             for (let i = 0; i < ranks.length; i++) {
                 if (clicks >= ranks[i].limit) {
@@ -1854,12 +2496,15 @@
                 }
             }
 
+            // Appliquer le texte et l'intensité du tremblement
             rankEl.textContent = currentRank.name;
             document.documentElement.style.setProperty('--intensity', currentRank.intensity);
 
+            // Ajuster l'effet d'aura
             const scaleFactor = 1 + Math.min(clicks / 1000, 1.5); 
             halo.style.transform = `scale(${scaleFactor})`;
 
+            // Met à jour l'état des boutons de la boutique à chaque changement de score
             updateShop();
         }
 
@@ -1869,15 +2514,19 @@
             return hasCollector ? clickPower + collectorWeaponBonus : clickPower;
         }
 
+        // Gérer le clic sur le caillou
         caillou.addEventListener('mousedown', (e) => {
             const gain = getCurrentClickValue();
             clicks += gain;
             saveGame();
             updateDisplay();
             createFloatEffect(e.clientX, e.clientY, gain);
+
+            // Enregistrer le timestamp du clic pour le calcul des CPS
             clickTimestamps.push(Date.now());
         });
 
+        // Effet de particule qui s'envole au clic
         function createFloatEffect(x, y, value) {
             const plusOne = document.createElement('div');
             const hasCollector = !!collectorWeaponBonus && collectorWeaponWeek === getWeekKey();
@@ -1895,7 +2544,9 @@
             }, 800);
         }
 
-        // --- GESTION DE LA BOUTIQUE & ONGLETS ---
+        // --- GESTION DE LA BOUTIQUE ---
+
+        // Ouvrir / Fermer le menu
         shopToggle.addEventListener('click', () => {
             shopSidebar.classList.add('open');
         });
@@ -1903,19 +2554,7 @@
             shopSidebar.classList.remove('open');
         });
 
-        // Gestion du changement d'onglets
-        document.querySelectorAll('.shop-tab-btn').forEach(tabBtn => {
-            tabBtn.addEventListener('click', () => {
-                document.querySelectorAll('.shop-tab-btn').forEach(b => b.classList.remove('active'));
-                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-                
-                tabBtn.classList.add('active');
-                const targetTab = tabBtn.getAttribute('data-tab');
-                document.getElementById(`tab-${targetTab}`).classList.add('active');
-            });
-        });
-
-        // Achats d'améliorations
+        // Achat Amélioration 1 (Super Pioche)
         document.getElementById('buy-up1').addEventListener('click', () => {
             const cost = getUp1Cost();
             if (clicks >= cost) {
@@ -1927,6 +2566,7 @@
             }
         });
 
+        // Achat Amélioration 2 (Forgeron de la Roche)
         document.getElementById('buy-up2').addEventListener('click', () => {
             const cost = getUp2Cost();
             if (clicks >= cost) {
@@ -1938,6 +2578,7 @@
             }
         });
 
+        // Achat Amélioration 3 (Esprit du Caillou - Auto Clicker)
         document.getElementById('buy-up3').addEventListener('click', () => {
             const cost = getUp3Cost();
             if (clicks >= cost) {
@@ -1949,32 +2590,11 @@
             }
         });
 
-        // Achats & Équipement de Skins
-        document.getElementById('buy-skin-default').addEventListener('click', () => {
-            equippedSkin = 'caillou.png';
-            saveGame();
-            updateDisplay();
-        });
-
-        document.getElementById('buy-skin-lowres').addEventListener('click', () => {
-            if (!ownedSkins.includes('lowres')) {
-                if (clicks >= 331) {
-                    clicks -= 331;
-                    ownedSkins.push('lowres');
-                    equippedSkin = 'caillou bs uuuuh.png';
-                    saveGame();
-                    updateDisplay();
-                }
-            } else {
-                equippedSkin = 'caillou bs uuuuh.png';
-                saveGame();
-                updateDisplay();
-            }
-        });
-
+        // Boucle de vérification permanente (Auto-clicker & Easter Egg)
         setInterval(() => {
             const now = Date.now();
 
+            // 1. Gérer l'auto-clicker
             if (autoClicks > 0) {
                 clicks += (autoClicks / 10);
                 if (Math.random() < (autoClicks / 10) % 1) {
@@ -1986,6 +2606,7 @@
                 updateDisplay();
             }
 
+            // 2. Vérification des clics par seconde (Easter Egg)
             clickTimestamps = clickTimestamps.filter(t => now - t < 1000);
             
             if (clickTimestamps.length >= 6) {
@@ -1995,39 +2616,44 @@
             }
         }, 100);
 
+        // --- GESTION DU LEVIER CLAIR / SOMBRE (AJOUTÉ) ---
         themeToggle.addEventListener('change', () => {
             if (themeToggle.checked) {
                 document.body.classList.add('light-mode');
                 leverLabel.textContent = "Mode Clair";
                 
+                // Relance le son depuis le début et le joue
                 lightModeSound.currentTime = 0;
-                lightModeSound.play().catch(err => console.log("Son bloqué :", err));
+                lightModeSound.play().catch(err => {
+                    console.log("Lecture du son bloquée par le navigateur : ", err);
+                });
             } else {
                 document.body.classList.remove('light-mode');
                 leverLabel.textContent = "Mode Sombre";
             }
         });
 
+        // Bouton de réinitialisation
         resetBtn.addEventListener('click', () => {
-            if (confirm("Voulez-vous vraiment redevenir une simple poussière (et perdre TOUTES vos améliorations et skins) ?")) {
-                resetSound.currentTime = 0;
-                resetSound.play().catch(err => console.log("Audio bloqué :", err));
-                
+            if (confirm("Voulez-vous vraiment redevenir une simple poussière (et perdre TOUTES vos améliorations) ?")) {
+               // --- JOUE LE SON TACO BELL ICI ---
+        resetSound.currentTime = 0;
+        resetSound.play().catch(err => console.log("Audio bloqué :", err));
+        // ----------------------- 
                 clicks = 0;
                 clickPower = 1;
                 autoClicks = 0;
                 up1Lvl = 0;
                 up2Lvl = 0;
                 up3Lvl = 0;
-                ownedSkins = ['default'];
-                equippedSkin = 'caillou.png';
                 localStorage.removeItem('caillou_leaderboard_base_clicks');
                 saveGame();
                 updateDisplay();
             }
         });
+                
 
-        // Initialisation
+        // Initialisation au chargement
         updateDisplay();
 
         // ======================================================
@@ -2087,6 +2713,7 @@
         }
 
         function openLeaderboardModal() {
+            // Afficher la boîte de rejoindre seulement si le joueur n'a pas déjà rejoint
             if (isJoinedForCurrentWeek()) {
                 leaderboardJoinBox.style.display = 'none';
             } else {
@@ -2129,6 +2756,7 @@
             const playerId = getPlayerId();
             const ref = database.ref(`leaderboard/${currentWeek}/entries/${playerId}`);
 
+            // Enregistrer les clics actuels comme base de départ pour la semaine
             localStorage.setItem('caillou_leaderboard_base_clicks', clicks);
 
             ref.set({
@@ -2156,6 +2784,7 @@
             const currentWeek = getWeekKey();
             const playerId = getPlayerId();
 
+            // Soustraire le nombre de clics au moment de l'inscription
             const baseClicks = parseInt(localStorage.getItem('caillou_leaderboard_base_clicks')) || 0;
             const leaderboardScore = Math.max(0, clicks - baseClicks);
 
@@ -2316,6 +2945,7 @@
             }
         }
 
+        // Vérifier si le joueur existe vraiment dans Firebase
         function verifyLeaderboardMembership() {
             const weekKey = getWeekKey();
             const playerId = getPlayerId();
@@ -2323,6 +2953,7 @@
 
             ref.once('value', (snapshot) => {
                 if (!snapshot.exists()) {
+                    // Le joueur n'existe pas dans Firebase, supprimer la flag localStorage
                     localStorage.removeItem('caillou_leaderboard_joined_week');
                 }
             });
@@ -2346,6 +2977,7 @@
             handleWeeklyResetAndRewards();
         }, 60000);
    </script>
+
 
     <script defer src="/_vercel/insights/script.js"></script>
 </body>
