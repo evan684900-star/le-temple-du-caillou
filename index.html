@@ -965,7 +965,9 @@
       
       const msgElement = document.createElement('div');
       msgElement.className = 'message';
-      msgElement.innerHTML = `<span class="author">${msg.auteur}${badge} <span style="font-size: 0.85rem; color: #999; font-weight: normal;">${time}</span></span> ${msg.texte}`;
+      
+      // NOUVEAU : On ajoute data-author et <span class="badges">
+      msgElement.innerHTML = `<span class="author" data-author="${msg.auteur}">${msg.auteur}<span class="badges">${badge}</span> <span style="font-size: 0.85rem; color: #999; font-weight: normal;">${time}</span></span> ${msg.texte}`;
       
       chatBox.appendChild(msgElement);
       // Auto-scroll vers le bas
@@ -993,6 +995,18 @@
     let rolesCache = {};
     database.ref('roles').on('value', (snapshot) => {
       rolesCache = snapshot.val() || {};
+      
+      // NOUVEAU : Mise à jour rétroactive des badges dans le chat
+      document.querySelectorAll('.message .author').forEach(authorEl => {
+        const auteur = authorEl.getAttribute('data-author');
+        if (auteur) {
+          const badgeContainer = authorEl.querySelector('.badges');
+          if (badgeContainer) {
+            // Recalcule et applique le badge une fois que rolesCache est rempli
+            badgeContainer.innerHTML = (typeof getChatRankBadge === 'function' ? getChatRankBadge(auteur) : '') + getRoleBadge(auteur);
+          }
+        }
+      });
     });
 
     function getRoleBadge(authorName) {
