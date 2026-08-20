@@ -960,7 +960,7 @@
     }
 
     // Écoute les nouveaux messages ajoutés
-    database.ref('messages').limitToLast(50).on('child_added', (snapshot) => {
+    database.ref('messages').limitToLast(20).on('child_added', (snapshot) => {
       const msg = snapshot.val();
       const time = formatTime(msg.timestamp);
       const badge = (typeof getChatRankBadge === 'function' ? getChatRankBadge(msg.auteur || '') : '') + getRoleBadge(msg.auteur || '');
@@ -1649,6 +1649,82 @@
             flex-grow: 1;
         }
 
+        /* --- Onglets de la boutique --- */
+        .shop-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 5px;
+        }
+
+        .shop-tab-btn {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: #a5a5b5;
+            padding: 8px 6px;
+            border-radius: 8px;
+            font-size: 0.78rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s, border-color 0.2s;
+        }
+
+        .shop-tab-btn:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: #ffffff;
+        }
+
+        .shop-tab-btn.active {
+            background: rgba(255, 183, 3, 0.15);
+            border-color: rgba(255, 183, 3, 0.4);
+            color: #ffb703;
+        }
+
+        body.light-mode .shop-tab-btn {
+            background: rgba(0, 0, 0, 0.03);
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            color: #5a5a6a;
+        }
+
+        body.light-mode .shop-tab-btn.active {
+            background: rgba(255, 183, 3, 0.18);
+            border-color: rgba(200, 150, 0, 0.4);
+            color: #a86a00;
+        }
+
+        /* --- Articles de type skin --- */
+        .skin-item {
+            flex-direction: row;
+            align-items: center;
+        }
+
+        .skin-thumb {
+            width: 56px;
+            height: 56px;
+            border-radius: 10px;
+            object-fit: cover;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            flex-shrink: 0;
+        }
+
+        .skin-item .item-info {
+            flex: 1;
+            gap: 4px;
+        }
+
+        .skin-price {
+            color: #ffb703;
+            font-weight: 700;
+        }
+
+        .buy-btn.equipped-btn {
+            background: rgba(0, 245, 212, 0.15);
+            border: 1px solid rgba(0, 245, 212, 0.4);
+            color: #00f5d4;
+            cursor: default;
+        }
+
         /* Un article de la boutique */
         .shop-item {
             background: rgba(255, 255, 255, 0.03);
@@ -2259,6 +2335,7 @@
     <!-- Élément Audio caché -->
     <audio id="lightModeSound" src="son.mp3" preload="auto"></audio>
     <audio id="resetSound" src="taco-bell-bong-sfx.mp3" preload="auto"></audio>
+    <audio id="antiCheatSound" src="anticheat.mp3" preload="auto" loop></audio>
 
     <!-- Message de l'Easter Egg -->
     <div class="easter-egg-msg" id="easterEgg">WOW TU CLIQUES VITE !!!</div>
@@ -2270,8 +2347,13 @@
     <div class="shop-sidebar" id="shopSidebar">
         <button class="shop-close-btn" id="shopClose">✕</button>
         <div class="shop-title">Boutique Divine</div>
-        
-        <div class="shop-items">
+
+        <div class="shop-tabs">
+            <button class="shop-tab-btn active" id="shopTabUpgrades" data-tab="upgrades">Améliorations</button>
+            <button class="shop-tab-btn" id="shopTabSkins" data-tab="skins">Skins et packs de skins</button>
+        </div>
+
+        <div class="shop-items" id="shopPanelUpgrades">
             <div class="shop-item collector-item">
                 <div class="item-info">
                     <span class="item-name collector-name">Arme collector</span>
@@ -2306,6 +2388,10 @@
                 </div>
                 <button class="buy-btn" id="buy-up3">Acheter : <span id="up3-cost">100</span> clics</button>
             </div>
+        </div>
+
+        <div class="shop-items" id="shopPanelSkins" style="display:none;">
+            <!-- Généré dynamiquement en JS : voir le tableau `skins` -->
         </div>
     </div>
 
@@ -2360,9 +2446,9 @@
 
         <div class="status-panel">
             <div class="click-count">Vous avez cliqué <span id="counter">0</span> fois sur le caillou.</div>
-            <p class="rank-text">Vous êtes : <span class="rank-name" id="rank">Nouveau-né</span></p>
+            <p class="rank-text">Vous êtes : <span class="rank-name" id="rank">-né</span></p>
         </div>
-    </div>
+    </div>Nouveau
 
     <!-- Levier Thème Sombre / Clair (AJOUTÉ) -->
     <div class="lever-container">
@@ -2378,6 +2464,8 @@
     <script>
         //son taco bell
         const resetSound = document.getElementById('resetSound');
+        const antiCheatSound = document.getElementById('antiCheatSound');
+        let isBanned = false;
         
         // Récupération des éléments DOM
         const caillou = document.getElementById('caillou');
@@ -2411,6 +2499,27 @@
         let up1Lvl = parseInt(localStorage.getItem('caillou_up1_lvl')) || 0;
         let up2Lvl = parseInt(localStorage.getItem('caillou_up2_lvl')) || 0;
         let up3Lvl = parseInt(localStorage.getItem('caillou_up3_lvl')) || 0;
+
+        // --- SKINS ---
+        const skins = [
+            {
+                id: 'base',
+                name: 'Caillou Classique',
+                desc: "Le caillou d'origine, juste magnifique, OSEZ ME DIRE QU'IL EST PAS BO LE KAYOU.",
+                price: 0,
+                img: 'caillou.png'
+            },
+            {
+                id: 'bassequalite',
+                name: 'Kayou sous basse qualité',
+                desc: "j'ai plus pris de temps a chercher comment faire l'effet pixélisé qu'a mettre le skin uuugh.",
+                price: 643,
+                img: 'caillou bs uuuuh.png'
+            }
+        ];
+
+        let ownedSkins = JSON.parse(localStorage.getItem('caillou_owned_skins') || '["base"]');
+        let equippedSkin = localStorage.getItem('caillou_equipped_skin') || 'base';
 
         // Calcul dynamique des coûts des améliorations
         const getUp1Cost = () => Math.round(30 * Math.pow(1.5, up1Lvl));
@@ -2450,6 +2559,8 @@
             localStorage.setItem('caillou_up3_lvl', up3Lvl);
             localStorage.setItem('caillou_collector_bonus', collectorWeaponBonus);
             localStorage.setItem('caillou_collector_week', collectorWeaponWeek || '');
+            localStorage.setItem('caillou_owned_skins', JSON.stringify(ownedSkins));
+            localStorage.setItem('caillou_equipped_skin', equippedSkin);
         }
 
         function clearCollectorWeapon() {
@@ -2543,6 +2654,73 @@
             document.getElementById('buy-up2').disabled = clicks < cost2;
             document.getElementById('buy-up3').disabled = clicks < cost3;
             updateCollectorShopState();
+            renderSkinsShop();
+        }
+
+        // Appliquer le skin équipé sur le caillou affiché
+        function applyEquippedSkin() {
+            const skin = skins.find(s => s.id === equippedSkin) || skins[0];
+            caillou.src = skin.img;
+        }
+
+        // Générer dynamiquement les cartes de skins dans la boutique
+        function renderSkinsShop() {
+            const panel = document.getElementById('shopPanelSkins');
+            if (!panel) return;
+            panel.innerHTML = '';
+
+            skins.forEach(skin => {
+                const owned = ownedSkins.includes(skin.id);
+                const isEquipped = equippedSkin === skin.id;
+
+                const item = document.createElement('div');
+                item.className = 'shop-item skin-item';
+
+                let buttonHtml;
+                if (isEquipped) {
+                    buttonHtml = `<button class="buy-btn equipped-btn" disabled>Équipé ✓</button>`;
+                } else if (owned) {
+                    buttonHtml = `<button class="buy-btn" data-action="equip" data-skin="${skin.id}">Équiper</button>`;
+                } else {
+                    buttonHtml = `<button class="buy-btn" data-action="buy" data-skin="${skin.id}" ${clicks < skin.price ? 'disabled' : ''}>Acheter : ${skin.price} points</button>`;
+                }
+
+                item.innerHTML = `
+                    <img class="skin-thumb" src="${skin.img}" alt="${skin.name}">
+                    <div class="item-info">
+                        <span class="item-name">${skin.name}</span>
+                        <span class="item-desc">${skin.desc}${skin.price > 0 ? `<br><span class="skin-price">${skin.price} points</span>` : '<br><span class="skin-price">Gratuit</span>'}</span>
+                    </div>
+                    ${buttonHtml}
+                `;
+                panel.appendChild(item);
+            });
+
+            // Gérer les clics sur les boutons Acheter / Équiper générés dynamiquement
+            panel.querySelectorAll('button[data-action]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const skinId = btn.getAttribute('data-skin');
+                    const action = btn.getAttribute('data-action');
+                    const skin = skins.find(s => s.id === skinId);
+                    if (!skin) return;
+
+                    if (action === 'buy' && !ownedSkins.includes(skinId)) {
+                        if (clicks >= skin.price) {
+                            clicks -= skin.price;
+                            ownedSkins.push(skinId);
+                            equippedSkin = skinId;
+                            saveGame();
+                            applyEquippedSkin();
+                            updateDisplay();
+                        }
+                    } else if (action === 'equip') {
+                        equippedSkin = skinId;
+                        saveGame();
+                        applyEquippedSkin();
+                        renderSkinsShop();
+                    }
+                });
+            });
         }
 
         // Mettre à jour l'affichage général
@@ -2579,6 +2757,8 @@
 
         // Gérer le clic sur le caillou
         caillou.addEventListener('mousedown', (e) => {
+            if (isBanned) return;
+
             const gain = getCurrentClickValue();
             clicks += gain;
             saveGame();
@@ -2616,6 +2796,24 @@
         shopClose.addEventListener('click', () => {
             shopSidebar.classList.remove('open');
         });
+
+        // Onglets de la boutique (Améliorations / Skins)
+        const shopTabUpgrades = document.getElementById('shopTabUpgrades');
+        const shopTabSkins = document.getElementById('shopTabSkins');
+        const shopPanelUpgrades = document.getElementById('shopPanelUpgrades');
+        const shopPanelSkins = document.getElementById('shopPanelSkins');
+
+        function switchShopTab(tab) {
+            const isSkins = tab === 'skins';
+            shopTabUpgrades.classList.toggle('active', !isSkins);
+            shopTabSkins.classList.toggle('active', isSkins);
+            shopPanelUpgrades.style.display = isSkins ? 'none' : 'flex';
+            shopPanelSkins.style.display = isSkins ? 'flex' : 'none';
+            if (isSkins) renderSkinsShop();
+        }
+
+        shopTabUpgrades.addEventListener('click', () => switchShopTab('upgrades'));
+        shopTabSkins.addEventListener('click', () => switchShopTab('skins'));
 
         // Achat Amélioration 1 (Super Pioche)
         document.getElementById('buy-up1').addEventListener('click', () => {
@@ -2677,6 +2875,16 @@
             } else {
                 easterEggEl.classList.remove('active');
             }
+
+            // 3. Sécurité anti auto-clicker : 20 clics/seconde ou plus
+            if (!isBanned && clickTimestamps.length >= 20) {
+                isBanned = true;
+                easterEggEl.classList.remove('active');
+                caillou.style.display = 'none';
+                antiCheatSound.currentTime = 0;
+                antiCheatSound.loop = true;
+                antiCheatSound.play().catch(err => console.log("Audio bloqué :", err));
+            }
         }, 100);
 
         // --- GESTION DU LEVIER CLAIR / SOMBRE (AJOUTÉ) ---
@@ -2717,6 +2925,7 @@
                 
 
         // Initialisation au chargement
+        applyEquippedSkin();
         updateDisplay();
 
         // ======================================================
