@@ -5,9 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Le Culte du Caillou</title>
-    
-    <h6>phase bêta du chat</h6>
-    
+
     <style>
     /* STYLES MODALE CHAT */
     .chat-modal {
@@ -112,6 +110,7 @@
       display: flex;
       flex-direction: column;
       flex: 1;
+      min-height: 0;
       overflow: hidden;
     }
 
@@ -174,9 +173,12 @@
 
     #chat-box {
       flex: 1;
+      min-height: 0;
       height: auto;
       border: none;
       overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior: contain;
       padding: 15px;
       background: #fafafa;
       margin-bottom: 0;
@@ -1357,6 +1359,21 @@
             padding: 0 15px;
         }
 
+        /* Badge "phase bêta" au-dessus du titre */
+        .beta-badge {
+            margin: 0 0 6px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: #8a8a9e;
+            opacity: 0.75;
+            text-align: center;
+        }
+        body.light-mode .beta-badge {
+            color: #6a6a7a;
+        }
+
         /* Titre discret en haut */
         h1 {
             font-size: 1.5rem;
@@ -1806,6 +1823,14 @@
 
         /* --- RESPONSIVE : TÉLÉPHONES ET PETITS ÉCRANS --- */
         @media (max-width: 600px) {
+            .game-container {
+                padding-top: 76px;
+            }
+
+            .beta-badge {
+                font-size: 0.62rem;
+            }
+
             h1 {
                 font-size: 1.1rem;
                 letter-spacing: 1px;
@@ -1889,6 +1914,10 @@
         }
 
         @media (max-width: 380px) {
+            .game-container {
+                padding-top: 66px;
+            }
+
             .caillou-img {
                 max-width: 60vw;
             }
@@ -1937,10 +1966,13 @@
 
         .leaderboard-modal-content {
             width: min(540px, 94vw);
+            max-height: min(80vh, 640px);
             background: rgba(18, 18, 24, 0.96);
             border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 18px;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            display: flex;
+            flex-direction: column;
             overflow: hidden;
         }
 
@@ -1956,6 +1988,7 @@
             padding: 18px 20px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.08);
             background: linear-gradient(135deg, rgba(255,183,3,0.12), rgba(255,255,255,0.02));
+            flex-shrink: 0;
         }
 
         body.light-mode .leaderboard-header {
@@ -2003,6 +2036,11 @@
 
         .leaderboard-body {
             padding: 18px 20px 20px;
+            flex: 1;
+            min-height: 0;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior: contain;
         }
 
         .leaderboard-join-box,
@@ -2199,15 +2237,24 @@
         @media (max-width: 600px) {
             .leaderboard-toggle-btn {
                 top: 12px;
-                right: 84px;
+                right: 155px;
                 width: 42px;
                 height: 42px;
                 font-size: 1.2rem;
             }
         }
+
+        @media (max-width: 380px) {
+            .leaderboard-toggle-btn {
+                right: 130px;
+            }
+
+            .shop-toggle-btn {
+                padding: 8px 10px;
+                font-size: 0.78rem;
+            }
+        }
     </style>
-</head>
-<body>
 
     <!-- Élément Audio caché -->
     <audio id="lightModeSound" src="son.mp3" preload="auto"></audio>
@@ -2302,6 +2349,7 @@
     </div>
 
     <div class="game-container">
+        <h6 class="beta-badge">phase bêta du chat</h6>
         <h1>Le Temple du caillou</h1>
 
         <div class="caillou-wrapper">
