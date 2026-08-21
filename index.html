@@ -948,6 +948,19 @@
       input.value = "";
     }
 
+    // Échappe les caractères HTML dangereux pour éviter les injections (XSS)
+    // A utiliser sur TOUTE donnée provenant de Firebase (pseudo, texte, rôle...)
+    // avant de l'insérer via innerHTML.
+    function escapeHtml(str) {
+      if (str === null || str === undefined) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
     // 4. RECEVOIR LES MESSAGES EN TEMPS RÉEL
     const chatBox = document.getElementById('chat-box');
 
@@ -969,7 +982,7 @@
       msgElement.className = 'message';
       
       // NOUVEAU : On ajoute data-author et <span class="badges">
-      msgElement.innerHTML = `<span class="author" data-author="${msg.auteur}">${msg.auteur}<span class="badges">${badge}</span> <span style="font-size: 0.85rem; color: #999; font-weight: normal;">${time}</span></span> ${msg.texte}`;
+      msgElement.innerHTML = `<span class="author" data-author="${escapeHtml(msg.auteur)}">${escapeHtml(msg.auteur)}<span class="badges">${badge}</span> <span style="font-size: 0.85rem; color: #999; font-weight: normal;">${time}</span></span> ${escapeHtml(msg.texte)}`;
       
       chatBox.appendChild(msgElement);
       // Auto-scroll vers le bas
@@ -980,7 +993,8 @@
     // ================== SYSTEME DE ROLES (FIREBASE) ==================
     // ===================================================================
 
-    const ROLE_ADMIN_CODE = "6688";
+    // Le code admin n'est plus stocké côté client (voir règles Firebase :
+    // la vérification se fait désormais côté serveur, dans _adminGate).
 
     // Clé Firebase valide (pas de . # $ [ ] /)
     function sanitizeKey(str) {
@@ -1016,7 +1030,7 @@
       const key = sanitizeKey(authorName);
       const entry = rolesCache[key];
       if (!entry || !entry.role) return '';
-      return ` <span class="chat-role-badge">[${entry.role}]</span>`;
+      return ` <span class="chat-role-badge">[${escapeHtml(entry.role)}]</span>`;
     }
 
     // --- Filtre anti-emoji ---
@@ -1190,7 +1204,7 @@
         entries.forEach(([id, req]) => {
           const item = document.createElement('div');
           item.className = 'role-request-item';
-          item.innerHTML = `<span>${req.pseudo}</span><span>›</span>`;
+          item.innerHTML = `<span>${escapeHtml(req.pseudo)}</span><span>›</span>`;
           item.addEventListener('click', () => demanderCodeAdmin(id, req));
           listEl.appendChild(item);
         });
@@ -1198,23 +1212,22 @@
     }
 
     // --- Demande le code administrateur avant d'afficher le détail ---
+    // NOTE : on ne peut plus vérifier le code ici (il n'existe plus côté client).
+    // On le garde en mémoire et il sera vérifié par le SERVEUR (règles Firebase)
+    // au moment de l'approbation/refus réel.
     function demanderCodeAdmin(id, req) {
-      const code = prompt("Entre le code pour voir cette demande :");
+      const code = prompt("Entre le code administrateur :");
       if (code === null) return;
-      if (code.trim() !== ROLE_ADMIN_CODE) {
-        alert("Code incorrect.");
-        return;
-      }
-      afficherDetailDemande(id, req);
+      afficherDetailDemande(id, req, code.trim());
     }
 
     // --- VUE 4 : Détail d'une demande + boutons approuver/désapprouver ---
-    function afficherDetailDemande(id, req) {
+    function afficherDetailDemande(id, req, adminCode) {
       rolesModalBody.innerHTML = `
         <button class="roles-back-btn" id="rolesBack3">&larr; Retour</button>
         <div class="role-detail-box">
-          <div><strong>Personne :</strong> ${req.pseudo}</div>
-          <div><strong>Rôle demandé :</strong> ${req.roleDemande}</div>
+          <div><strong>Personne :</strong> ${escapeHtml(req.pseudo)}</div>
+          <div><strong>Rôle demandé :</strong> ${escapeHtml(req.roleDemande)}</div>
           <div class="role-detail-actions">
             <button class="role-approve-btn" id="btnApprouver">✅ J'approuve</button>
             <button class="role-reject-btn" id="btnDesapprouver">❌ Je désapprouve</button>
@@ -1223,38 +1236,44 @@
         <div class="roles-feedback" id="roleDetailFeedback"></div>
       `;
       document.getElementById('rolesBack3').addEventListener('click', afficherListeDemandes);
-      document.getElementById('btnApprouver').addEventListener('click', () => approuverDemande(id, req));
-      document.getElementById('btnDesapprouver').addEventListener('click', () => afficherFormulaireRefus(id, req));
+      document.getElementById('btnApprouver').addEventListener('click', () => approuverDemande(id, req, adminCode));
+      document.getElementById('btnDesapprouver').addEventListener('click', () => afficherFormulaireRefus(id, req, adminCode));
     }
 
-    function approuverDemande(id, req) {
+    function approuverDemande(id, req, adminCode) {
       const feedback = document.getElementById('roleDetailFeedback');
       feedback.textContent = "Traitement...";
       feedback.className = 'roles-feedback';
 
-      database.ref('roles/' + req.pseudoKey).set({
+      // Écriture atomique multi-chemin : le rôle n'est réellement écrit QUE si
+      // _adminGate/code correspond à la valeur attendue par les règles Firebase.
+      // Si le code est faux, toute l'opération est rejetée par le serveur.
+      const updates = {};
+      updates['roles/' + req.pseudoKey] = {
         pseudo: req.pseudo,
         role: req.roleDemande,
         timestamp: Date.now()
-      }).then(() => {
-        return database.ref('roleRequests/' + id).update({ status: 'approved' });
-      }).then(() => {
+      };
+      updates['roleRequests/' + id + '/status'] = 'approved';
+      updates['_adminGate/code'] = adminCode;
+
+      database.ref().update(updates).then(() => {
         feedback.textContent = "Rôle approuvé pour " + req.pseudo + " !";
         feedback.classList.add('success');
         setTimeout(afficherListeDemandes, 1200);
       }).catch(() => {
-        feedback.textContent = "Erreur lors de l'approbation.";
+        feedback.textContent = "Code incorrect ou erreur lors de l'approbation.";
         feedback.classList.add('error');
       });
     }
 
     // --- VUE 5 : Formulaire de commentaire de refus ---
-    function afficherFormulaireRefus(id, req) {
+    function afficherFormulaireRefus(id, req, adminCode) {
       rolesModalBody.innerHTML = `
         <button class="roles-back-btn" id="rolesBack4">&larr; Retour</button>
         <div class="role-detail-box">
-          <div><strong>Personne :</strong> ${req.pseudo}</div>
-          <div><strong>Rôle demandé :</strong> ${req.roleDemande}</div>
+          <div><strong>Personne :</strong> ${escapeHtml(req.pseudo)}</div>
+          <div><strong>Rôle demandé :</strong> ${escapeHtml(req.roleDemande)}</div>
           <p>Explique pourquoi tu refuses cette demande (ce message sera affiché à la personne à sa prochaine connexion) :</p>
           <textarea class="role-refuse-comment" id="refuseComment" placeholder="Raison du refus..."></textarea>
           <div class="role-detail-actions">
@@ -1263,7 +1282,7 @@
         </div>
         <div class="roles-feedback" id="roleRefuseFeedback"></div>
       `;
-      document.getElementById('rolesBack4').addEventListener('click', () => afficherDetailDemande(id, req));
+      document.getElementById('rolesBack4').addEventListener('click', () => afficherDetailDemande(id, req, adminCode));
       document.getElementById('btnConfirmerRefus').addEventListener('click', () => confirmerRefus(id, req));
     }
 
@@ -3092,7 +3111,7 @@
                 row.className = 'leaderboard-row';
                 row.innerHTML = `
                     <div class="rank-pill">${index + 1}</div>
-                    <div class="leaderboard-name">${entry.pseudo || 'Anonyme'}</div>
+                    <div class="leaderboard-name">${escapeHtml(entry.pseudo) || 'Anonyme'}</div>
                     <div class="leaderboard-score">${entry.score || 0}</div>
                 `;
                 leaderboardList.appendChild(row);
