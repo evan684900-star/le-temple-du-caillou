@@ -778,6 +778,71 @@
 </head>
 <body>
 
+  <!-- === ÉCRAN D'AUTHENTIFICATION === -->
+  <div id="authScreen">
+    <div class="auth-container">
+
+      <!-- VUE PRINCIPALE : Google / Connexion / Inscription -->
+      <div class="auth-view active" id="authViewMain">
+        <h1>🪨 Le Culte du Caillou</h1>
+        <p>Connecte-toi pour sauvegarder ta progression</p>
+
+        <button type="button" id="googleSignInBtn" class="auth-google-btn">
+          <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.5 29.3 35.5 24 35.5c-6.4 0-11.5-5.1-11.5-11.5S17.6 12.5 24 12.5c2.9 0 5.6 1.1 7.6 2.9l5.7-5.7C33.9 6.5 29.2 4.5 24 4.5 13.2 4.5 4.5 13.2 4.5 24S13.2 43.5 24 43.5 43.5 34.8 43.5 24c0-1.2-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.6 15.9 18.9 12.5 24 12.5c2.9 0 5.6 1.1 7.6 2.9l5.7-5.7C33.9 6.5 29.2 4.5 24 4.5c-7.9 0-14.7 4.5-18 11.1l.3-.9z"/><path fill="#4CAF50" d="M24 43.5c5.2 0 9.9-2 13.4-5.2l-6.2-5.2c-1.9 1.4-4.4 2.4-7.2 2.4-5.3 0-9.7-3.6-11.3-8.4l-6.5 5C9.4 39 16.1 43.5 24 43.5z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.2 4.2-4.1 5.6l6.2 5.2C41.3 35.7 43.5 30.3 43.5 24c0-1.2-.1-2.4-.4-3.5z"/></svg>
+          Continuer avec Google
+        </button>
+
+        <div class="auth-divider"><span>ou</span></div>
+
+        <div class="auth-tabs">
+          <button class="auth-tab-btn active" data-tab="login">Connexion</button>
+          <button class="auth-tab-btn" data-tab="register">Inscription</button>
+        </div>
+
+        <!-- FORMULAIRE CONNEXION -->
+        <form class="auth-form active" id="loginForm" data-tab="login">
+          <input type="email" id="loginEmail" placeholder="Email" autocomplete="email" required>
+          <input type="password" id="loginPassword" placeholder="Mot de passe" autocomplete="current-password" required>
+          <button type="button" id="loginBtn">Se connecter</button>
+          <div class="auth-feedback" id="loginFeedback"></div>
+        </form>
+
+        <!-- FORMULAIRE INSCRIPTION -->
+        <form class="auth-form" id="registerForm" data-tab="register">
+          <input type="email" id="registerEmail" placeholder="Email" autocomplete="email" required>
+          <input type="password" id="registerPassword" placeholder="Mot de passe (6+ caractères)" autocomplete="new-password" required>
+          <input type="text" id="registerPseudo" placeholder="Pseudo (visible dans le chat)" maxlength="30" required>
+          <button type="button" id="registerBtn">S'inscrire</button>
+          <div class="auth-feedback" id="registerFeedback"></div>
+        </form>
+
+        <button type="button" id="guestLinkBtn" class="auth-guest-link">ou faire sans compte</button>
+      </div>
+
+      <!-- VUE : AVERTISSEMENT MODE INVITÉ -->
+      <div class="auth-view" id="authViewGuestWarning">
+        <h1>⚠️ Attention</h1>
+        <p class="auth-warning-text">Vous perdrez votre progression si vous changez d'appareil. Êtes-vous sûr ?</p>
+        <div class="auth-guest-choice">
+          <button type="button" id="guestConfirmYes" class="auth-guest-yes">Oui</button>
+          <button type="button" id="guestConfirmNo" class="auth-guest-no">Non</button>
+        </div>
+      </div>
+
+      <!-- VUE : PSEUDO EN MODE INVITÉ -->
+      <div class="auth-view" id="authViewGuestPseudo">
+        <h1>🪨 Choisis ton pseudo</h1>
+        <p>Il sera visible dans le chat et le classement.</p>
+        <form class="auth-form active" id="guestPseudoForm">
+          <input type="text" id="guestPseudoInput" placeholder="Ton pseudo" maxlength="30" required>
+          <button type="button" id="guestStartBtn">Commencer</button>
+          <div class="auth-feedback" id="guestFeedback"></div>
+        </form>
+      </div>
+
+    </div>
+  </div>
+
   <!-- BOUTON DE CHAT EN HAUT A GAUCHE -->
   <button class="chat-toggle-btn" id="chatToggle" title="Ouvrir le chat">
     <img src="chatonline.png" alt="Chat">
@@ -823,6 +888,7 @@
         <div class="chat-user-info">
           <span>Connecté en tant que : <b id="user-display">---</b></span>
           <button onclick="changerPseudo()">Changer pseudo</button>
+          <button onclick="deconnexion()" class="auth-logout-btn">Déconnexion</button>
         </div>
 
         <!-- Zone du Chat -->
@@ -843,6 +909,7 @@
   <!-- SDK Firebase (CDN JavaScript) -->
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
 
   <script>
     // GESTION DE LA MODALE DE CHAT
@@ -882,39 +949,372 @@
     // Initialisation
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
+    const auth = firebase.auth();
+    const googleProvider = new firebase.auth.GoogleAuthProvider();
 
-    // 2. GESTION DU PSEUDO / COMPTE ANONYME
-    function ObtenirNomUtilisateur() {
-      let pseudo = localStorage.getItem('chat_username');
-      if (!pseudo) {
-        // Génère un pseudo aléatoire anonyme type "04829"
-        const numAnonyme = Math.floor(10000 + Math.random() * 90000);
-        pseudo = "Anonyme_" + numAnonyme;
-        localStorage.setItem('chat_username', pseudo);
-      }
-      return pseudo;
+    // ===================================================================
+    // ==================== AUTHENTIFICATION (COMPTES) ==================
+    // ===================================================================
+
+    let currentUser = null;       // objet Firebase Auth (uid, email...)
+    let monPseudo = '';           // pseudo affiché (chat, rôles, classement)
+    let monPseudoKey = '';        // = currentUser.uid une fois connecté
+    let pendingRegisterPseudo = null; // pseudo choisi au moment de l'inscription
+    let gameHasStarted = false;   // évite de lancer le jeu 2 fois
+
+    // Clés localStorage qui représentent la progression du joueur
+    // (on ne touche pas aux clés du classement hebdomadaire, gérées séparément)
+    const GAME_STATE_KEYS = [
+      'caillou_clicks', 'caillou_clickPower', 'caillou_autoClicks',
+      'caillou_collector_bonus', 'caillou_collector_week',
+      'caillou_up1_lvl', 'caillou_up2_lvl', 'caillou_up3_lvl',
+      'caillou_owned_skins', 'caillou_equipped_skin'
+    ];
+
+    // ===================================================================
+    // ============ UNICITÉ DES PSEUDOS (pseudoIndex : pseudo -> uid) ======
+    // ===================================================================
+    // Un pseudo ne peut être utilisé que par UN SEUL compte à la fois.
+    // pseudoIndex/{clé} = uid du propriétaire actuel. Comparaison insensible
+    // à la casse ("Lunedis" et "lunedis" sont considérés comme le même pseudo).
+
+    function pseudoVersCle(pseudo) {
+      return String(pseudo).trim().toLowerCase().replace(/[.#$\[\]\/]/g, '_');
     }
 
-    let monPseudo = ObtenirNomUtilisateur();
-    document.getElementById('user-display').innerText = monPseudo;
+    // Tente de réserver un pseudo pour un uid donné.
+    // Utilise une transaction Firebase pour éviter que deux personnes
+    // prennent le même pseudo en même temps (condition de course).
+    // Rejette avec 'PSEUDO_PRIS' si quelqu'un d'autre l'a déjà.
+    function reclamerPseudo(uid, pseudoKey) {
+      return database.ref('pseudoIndex/' + pseudoKey).transaction((actuel) => {
+        if (actuel === null || actuel === uid) {
+          return uid; // libre, ou déjà à moi -> je le prends/garde
+        }
+        return; // undefined = on annule la transaction, on ne touche à rien
+      }).then((resultat) => {
+        if (!resultat.committed) {
+          const err = new Error('PSEUDO_PRIS');
+          err.code = 'PSEUDO_PRIS';
+          throw err;
+        }
+      });
+    }
+
+    // Change le pseudo d'un utilisateur en réservant le nouveau ET en
+    // libérant automatiquement l'ancien dans le même passage (si différent).
+    function definirPseudo(uid, ancienPseudo, nouveauPseudo) {
+      const nouvelleCle = pseudoVersCle(nouveauPseudo);
+      const ancienneCle = ancienPseudo ? pseudoVersCle(ancienPseudo) : null;
+
+      // Si c'est littéralement le même pseudo (juste casse différente ou identique),
+      // pas besoin de re-réserver, on ajuste juste l'affichage.
+      if (ancienneCle === nouvelleCle) {
+        return database.ref('users/' + uid + '/pseudo').set(nouveauPseudo);
+      }
+
+      return reclamerPseudo(uid, nouvelleCle).then(() => {
+        const updates = {};
+        updates['users/' + uid + '/pseudo'] = nouveauPseudo;
+        updates['pseudoIndex/' + nouvelleCle] = uid;
+        if (ancienneCle) {
+          updates['pseudoIndex/' + ancienneCle] = null; // libère l'ancien pseudo
+        }
+        return database.ref().update(updates);
+      });
+    }
+
+    // Vérification rapide (non atomique, juste pour feedback immédiat à l'utilisateur
+    // avant de créer le compte / tenter le changement) : le pseudo est-il pris ?
+    function pseudoEstPris(pseudo) {
+      return database.ref('pseudoIndex/' + pseudoVersCle(pseudo)).once('value').then((snap) => snap.exists());
+    }
+
+    // Crée le profil users/{uid} s'il n'existe pas encore, sinon le renvoie tel quel
+    function assurerProfilUtilisateur(user) {
+      const ref = database.ref('users/' + user.uid);
+      return ref.once('value').then((snap) => {
+        if (snap.exists()) return snap.val();
+
+        const pseudoSouhaite = pendingRegisterPseudo || user.displayName || (user.email ? user.email.split('@')[0] : 'Joueur');
+        pendingRegisterPseudo = null;
+
+        // Tente de réserver le pseudo souhaité ; si pris (ex: displayName Google
+        // déjà utilisé par un autre compte), ajoute un petit suffixe jusqu'à
+        // trouver une variante libre, plutôt que de bloquer la connexion.
+        function tenterReservation(pseudo, essai) {
+          const cle = pseudoVersCle(pseudo);
+          return reclamerPseudo(user.uid, cle).then(() => pseudo).catch((err) => {
+            if (err.code === 'PSEUDO_PRIS' && essai < 5) {
+              const variante = pseudoSouhaite + '_' + Math.floor(100 + Math.random() * 900);
+              return tenterReservation(variante, essai + 1);
+            }
+            throw err;
+          });
+        }
+
+        return tenterReservation(pseudoSouhaite, 0).then((pseudoFinal) => {
+          const profil = {
+            email: user.email || null,
+            pseudo: pseudoFinal,
+            createdAt: Date.now()
+          };
+          return ref.set(profil).then(() => profil);
+        });
+      });
+    }
+
+    // Récupère la progression sauvegardée dans le cloud et l'applique en local.
+    // Si aucune progression cloud n'existe encore (1ère connexion), on envoie
+    // la progression locale actuelle comme point de départ.
+    function hydraterProgressionDepuisCloud(uid) {
+      return database.ref('users/' + uid + '/gameState').once('value').then((snap) => {
+        if (snap.exists()) {
+          const cloudState = snap.val();
+          GAME_STATE_KEYS.forEach((key) => {
+            if (cloudState[key] !== undefined && cloudState[key] !== null) {
+              localStorage.setItem(key, cloudState[key]);
+            }
+          });
+        } else {
+          return sauvegarderProgressionCloud(uid);
+        }
+      });
+    }
+
+    let lastCloudSaveTime = 0;
+    function sauvegarderProgressionCloud(uid, force) {
+      if (!uid) return Promise.resolve();
+      const now = Date.now();
+      if (!force && now - lastCloudSaveTime < 15000) return Promise.resolve();
+      lastCloudSaveTime = now;
+      const state = {};
+      GAME_STATE_KEYS.forEach((key) => {
+        const val = localStorage.getItem(key);
+        if (val !== null) state[key] = val;
+      });
+      state.lastSync = now;
+      return database.ref('users/' + uid + '/gameState').set(state);
+    }
+
+    function afficherEcranAuth() {
+      document.getElementById('authScreen').classList.remove('hidden');
+      if (typeof afficherVueAuth === 'function') afficherVueAuth('authViewMain');
+    }
+
+    function masquerEcranAuth() {
+      document.getElementById('authScreen').classList.add('hidden');
+    }
+
+    // === RÉACTION AUX CHANGEMENTS D'AUTHENTIFICATION ===
+    auth.onAuthStateChanged((user) => {
+      if (!user) {
+        currentUser = null;
+        afficherEcranAuth();
+        return;
+      }
+
+      currentUser = user;
+
+      assurerProfilUtilisateur(user)
+        .then((profil) => {
+          monPseudo = profil.pseudo;
+          monPseudoKey = user.uid;
+          document.getElementById('user-display').innerText = monPseudo;
+          return hydraterProgressionDepuisCloud(user.uid);
+        })
+        .then(() => {
+          masquerEcranAuth();
+          verifierRefusEnAttente();
+          if (!gameHasStarted && typeof initGame === 'function') {
+            gameHasStarted = true;
+            initGame();
+          }
+          // Sauvegarde périodique de la progression pendant la session
+          setInterval(() => sauvegarderProgressionCloud(currentUser.uid), 20000);
+          window.addEventListener('beforeunload', () => sauvegarderProgressionCloud(currentUser.uid, true));
+          document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'hidden') sauvegarderProgressionCloud(currentUser.uid, true);
+          });
+        })
+        .catch((err) => {
+          console.error('Erreur de chargement du profil :', err);
+          afficherEcranAuth();
+        });
+    });
+
+    function deconnexion() {
+      auth.signOut().then(() => location.reload());
+    }
 
     function changerPseudo() {
-      const nouveau = prompt("Entre ton pseudo / nom de compte :", monPseudo);
+      if (!currentUser) return;
+      const nouveau = prompt("Nouveau pseudo :", monPseudo);
       if (nouveau && nouveau.trim() !== "") {
-        monPseudo = nouveau.trim();
-        localStorage.setItem('chat_username', monPseudo);
-        document.getElementById('user-display').innerText = monPseudo;
-        if (typeof updateMonPseudoKey === 'function') {
-          updateMonPseudoKey();
-        }
+        const propre = nouveau.trim();
+        definirPseudo(currentUser.uid, monPseudo, propre).then(() => {
+          monPseudo = propre;
+          document.getElementById('user-display').innerText = monPseudo;
+        }).catch((err) => {
+          if (err.code === 'PSEUDO_PRIS') {
+            alert("Ce pseudo est déjà pris par quelqu'un d'autre. Choisis-en un autre.");
+          } else {
+            alert("Erreur lors du changement de pseudo. Réessaie.");
+          }
+        });
       }
     }
+
+    // === ONGLETS CONNEXION / INSCRIPTION ===
+    document.querySelectorAll('.auth-tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const tab = btn.dataset.tab;
+        document.querySelectorAll('.auth-tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+        btn.classList.add('active');
+        document.querySelector('.auth-form[data-tab="' + tab + '"]').classList.add('active');
+      });
+    });
+
+    // === NAVIGATION ENTRE LES VUES DE L'ÉCRAN AUTH (principale / invité) ===
+    function afficherVueAuth(id) {
+      document.querySelectorAll('.auth-view').forEach(v => v.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+    }
+
+    // === MODE INVITÉ (sans compte) ===
+    document.getElementById('guestLinkBtn').addEventListener('click', () => {
+      afficherVueAuth('authViewGuestWarning');
+    });
+
+    document.getElementById('guestConfirmNo').addEventListener('click', () => {
+      afficherVueAuth('authViewMain');
+    });
+
+    document.getElementById('guestConfirmYes').addEventListener('click', () => {
+      afficherVueAuth('authViewGuestPseudo');
+    });
+
+    document.getElementById('guestStartBtn').addEventListener('click', () => {
+      const pseudo = document.getElementById('guestPseudoInput').value.trim();
+      const feedback = document.getElementById('guestFeedback');
+
+      if (!pseudo) {
+        feedback.textContent = 'Choisis un pseudo.';
+        feedback.classList.remove('success');
+        feedback.classList.add('error');
+        return;
+      }
+
+      feedback.textContent = 'Vérification du pseudo...';
+      feedback.classList.remove('error', 'success');
+
+      pseudoEstPris(pseudo).then((pris) => {
+        if (pris) {
+          feedback.textContent = 'Ce pseudo est déjà pris, choisis-en un autre.';
+          feedback.classList.add('error');
+          return;
+        }
+
+        feedback.textContent = 'Connexion en cours...';
+
+        // On réutilise le même système d'identité (compte anonyme Firebase) :
+        // le chat, les rôles et la progression fonctionnent pareil, seulement
+        // ils resteront liés à cet appareil/navigateur uniquement.
+        pendingRegisterPseudo = pseudo;
+
+        return auth.signInAnonymously().catch((error) => {
+          pendingRegisterPseudo = null;
+          feedback.textContent = "Erreur : impossible de continuer sans compte. Réessaie.";
+          feedback.classList.add('error');
+        });
+      });
+    });
+
+    // === CONNEXION GOOGLE ===
+    document.getElementById('googleSignInBtn').addEventListener('click', () => {
+      auth.signInWithPopup(googleProvider).catch((error) => {
+        alert("Erreur de connexion Google : " + (error.message || "réessaie."));
+      });
+    });
+
+    // === CONNEXION EMAIL / MOT DE PASSE ===
+    document.getElementById('loginBtn').addEventListener('click', () => {
+      const email = document.getElementById('loginEmail').value.trim();
+      const password = document.getElementById('loginPassword').value;
+      const feedback = document.getElementById('loginFeedback');
+
+      if (!email || !password) {
+        feedback.textContent = 'Remplis tous les champs.';
+        feedback.classList.remove('success');
+        feedback.classList.add('error');
+        return;
+      }
+
+      feedback.textContent = 'Connexion en cours...';
+      feedback.classList.remove('error', 'success');
+
+      auth.signInWithEmailAndPassword(email, password).catch((error) => {
+        feedback.textContent = "Erreur : email ou mot de passe incorrect.";
+        feedback.classList.add('error');
+      });
+    });
+
+    // === INSCRIPTION EMAIL / MOT DE PASSE ===
+    document.getElementById('registerBtn').addEventListener('click', () => {
+      const email = document.getElementById('registerEmail').value.trim();
+      const password = document.getElementById('registerPassword').value;
+      const pseudo = document.getElementById('registerPseudo').value.trim();
+      const feedback = document.getElementById('registerFeedback');
+
+      if (!email || !password || !pseudo) {
+        feedback.textContent = 'Remplis tous les champs.';
+        feedback.classList.remove('success');
+        feedback.classList.add('error');
+        return;
+      }
+
+      if (password.length < 6) {
+        feedback.textContent = 'Le mot de passe doit contenir au moins 6 caractères.';
+        feedback.classList.remove('success');
+        feedback.classList.add('error');
+        return;
+      }
+
+      feedback.textContent = 'Vérification du pseudo...';
+      feedback.classList.remove('error', 'success');
+
+      pseudoEstPris(pseudo).then((pris) => {
+        if (pris) {
+          feedback.textContent = 'Ce pseudo est déjà pris, choisis-en un autre.';
+          feedback.classList.add('error');
+          return;
+        }
+
+        feedback.textContent = 'Inscription en cours...';
+        pendingRegisterPseudo = pseudo;
+
+        return auth.createUserWithEmailAndPassword(email, password).catch((error) => {
+          pendingRegisterPseudo = null;
+          let msg = "Impossible de créer le compte.";
+          if (error.code === 'auth/email-already-in-use') msg = "Cet email est déjà utilisé.";
+          if (error.code === 'auth/invalid-email') msg = "Email invalide.";
+          feedback.textContent = "Erreur : " + msg;
+          feedback.classList.add('error');
+        });
+      });
+    });
 
     // 3. ENVOYER UN MESSAGE
     let lastMessageTime = 0;
     const SPAM_COOLDOWN = 3000; // 3 secondes
 
     function envoyerMessage() {
+      if (!currentUser) {
+        alert('Tu dois être connecté pour envoyer un message.');
+        return;
+      }
+
       const input = document.getElementById('message-input');
       const warningEl = document.getElementById('chatWarning');
       const texte = input.value.trim();
@@ -940,7 +1340,9 @@
       lastMessageTime = now;
 
       // On pousse le message dans le chemin "messages/"
+      // uid inclus : c'est ce qui permet de retrouver le rôle de l'auteur de façon fiable
       database.ref('messages').push({
+        uid: currentUser.uid,
         auteur: monPseudo,
         texte: texte,
         timestamp: Date.now()
@@ -976,13 +1378,13 @@
     database.ref('messages').limitToLast(20).on('child_added', (snapshot) => {
       const msg = snapshot.val();
       const time = formatTime(msg.timestamp);
-      const badge = (typeof getChatRankBadge === 'function' ? getChatRankBadge(msg.auteur || '') : '') + getRoleBadge(msg.auteur || '');
+      const badge = (typeof getChatRankBadge === 'function' ? getChatRankBadge(msg.auteur || '') : '') + getRoleBadge(msg.uid || '');
       
       const msgElement = document.createElement('div');
       msgElement.className = 'message';
       
-      // NOUVEAU : On ajoute data-author et <span class="badges">
-      msgElement.innerHTML = `<span class="author" data-author="${escapeHtml(msg.auteur)}">${escapeHtml(msg.auteur)}<span class="badges">${badge}</span> <span style="font-size: 0.85rem; color: #999; font-weight: normal;">${time}</span></span> ${escapeHtml(msg.texte)}`;
+      // data-uid sert à retrouver le rôle de l'auteur de façon stable, même s'il change de pseudo
+      msgElement.innerHTML = `<span class="author" data-uid="${escapeHtml(msg.uid || '')}" data-author="${escapeHtml(msg.auteur)}">${escapeHtml(msg.auteur)}<span class="badges">${badge}</span> <span style="font-size: 0.85rem; color: #999; font-weight: normal;">${time}</span></span> ${escapeHtml(msg.texte)}`;
       
       chatBox.appendChild(msgElement);
       // Auto-scroll vers le bas
@@ -995,40 +1397,28 @@
 
     // Le code admin n'est plus stocké côté client (voir règles Firebase :
     // la vérification se fait désormais côté serveur, dans _adminGate).
+    // Les rôles sont désormais stockés sous roles/{uid} : monPseudoKey = uid,
+    // défini une fois l'utilisateur authentifié (voir onAuthStateChanged plus haut).
 
-    // Clé Firebase valide (pas de . # $ [ ] /)
-    function sanitizeKey(str) {
-      return String(str).trim().replace(/[.#$\[\]\/]/g, "_");
-    }
-
-    let monPseudoKey = sanitizeKey(monPseudo);
-    function updateMonPseudoKey() {
-      monPseudoKey = sanitizeKey(monPseudo);
-      verifierRefusEnAttente();
-    }
-
-    // --- Cache local des rôles approuvés (pseudo -> role) pour affichage dans le chat ---
+    // --- Cache local des rôles approuvés (uid -> role) pour affichage dans le chat ---
     let rolesCache = {};
     database.ref('roles').on('value', (snapshot) => {
       rolesCache = snapshot.val() || {};
       
-      // NOUVEAU : Mise à jour rétroactive des badges dans le chat
+      // Mise à jour rétroactive des badges dans le chat
       document.querySelectorAll('.message .author').forEach(authorEl => {
+        const uid = authorEl.getAttribute('data-uid');
         const auteur = authorEl.getAttribute('data-author');
-        if (auteur) {
-          const badgeContainer = authorEl.querySelector('.badges');
-          if (badgeContainer) {
-            // Recalcule et applique le badge une fois que rolesCache est rempli
-            badgeContainer.innerHTML = (typeof getChatRankBadge === 'function' ? getChatRankBadge(auteur) : '') + getRoleBadge(auteur);
-          }
+        const badgeContainer = authorEl.querySelector('.badges');
+        if (badgeContainer) {
+          badgeContainer.innerHTML = (typeof getChatRankBadge === 'function' ? getChatRankBadge(auteur) : '') + getRoleBadge(uid);
         }
       });
     });
 
-    function getRoleBadge(authorName) {
-      if (!authorName) return '';
-      const key = sanitizeKey(authorName);
-      const entry = rolesCache[key];
+    function getRoleBadge(uid) {
+      if (!uid) return '';
+      const entry = rolesCache[uid];
       if (!entry || !entry.role) return '';
       return ` <span class="chat-role-badge">[${escapeHtml(entry.role)}]</span>`;
     }
@@ -1245,24 +1635,40 @@
       feedback.textContent = "Traitement...";
       feedback.className = 'roles-feedback';
 
-      // Écriture atomique multi-chemin : le rôle n'est réellement écrit QUE si
-      // _adminGate/code correspond à la valeur attendue par les règles Firebase.
-      // Si le code est faux, toute l'opération est rejetée par le serveur.
-      const updates = {};
-      updates['roles/' + req.pseudoKey] = {
-        pseudo: req.pseudo,
-        role: req.roleDemande,
-        timestamp: Date.now()
-      };
-      updates['roleRequests/' + id + '/status'] = 'approved';
-      updates['_adminGate/code'] = adminCode;
+      // Garde-fou : une demande créée avant le passage aux comptes (auth) peut
+      // ne pas avoir de pseudoKey valide.
+      if (!req.pseudoKey) {
+        feedback.textContent = "Cette demande est invalide (créée avant la mise à jour du système de comptes). Demande à la personne de refaire sa demande.";
+        feedback.classList.add('error');
+        return;
+      }
 
-      database.ref().update(updates).then(() => {
+      // Écritures SÉQUENTIELLES (pas atomiques) : d'abord le code admin, puis
+      // le rôle une fois que le code est confirmé enregistré côté serveur.
+      // (L'écriture multi-chemin atomique ne fonctionnait pas de façon fiable
+      // avec les règles Firebase : root.child() n'y reflète pas la valeur en
+      // cours d'écriture dans la même requête.)
+      database.ref('_adminGate/code').set(adminCode).then(() => {
+        return database.ref('roles/' + req.pseudoKey).set({
+          pseudo: req.pseudo,
+          role: req.roleDemande,
+          timestamp: Date.now()
+        });
+      }).then(() => {
+        return database.ref('roleRequests/' + id + '/status').set('approved');
+      }).then(() => {
         feedback.textContent = "Rôle approuvé pour " + req.pseudo + " !";
         feedback.classList.add('success');
         setTimeout(afficherListeDemandes, 1200);
-      }).catch(() => {
-        feedback.textContent = "Code incorrect ou erreur lors de l'approbation.";
+      }).catch((error) => {
+        // On log la VRAIE erreur dans la console pour pouvoir diagnostiquer
+        // (ex: F12 -> onglet Console). Le message affiché reste simple.
+        console.error('Erreur approbation rôle :', error);
+        if (error && error.code === 'PERMISSION_DENIED') {
+          feedback.textContent = "Code incorrect (ou permission refusée par les règles Firebase).";
+        } else {
+          feedback.textContent = "Erreur lors de l'approbation : " + (error && error.message ? error.message : 'inconnue') + " (voir la console F12 pour le détail).";
+        }
         feedback.classList.add('error');
       });
     }
@@ -1311,8 +1717,9 @@
         feedback.textContent = "Refus envoyé à " + req.pseudo + ".";
         feedback.classList.add('success');
         setTimeout(afficherListeDemandes, 1200);
-      }).catch(() => {
-        feedback.textContent = "Erreur lors de l'envoi du refus.";
+      }).catch((error) => {
+        console.error('Erreur envoi refus :', error);
+        feedback.textContent = "Erreur lors de l'envoi du refus (voir console F12 pour le détail).";
         feedback.classList.add('error');
       });
     }
@@ -1335,7 +1742,9 @@
       });
     }
 
-    verifierRefusEnAttente();
+    // Note : verifierRefusEnAttente() est appelée juste après l'authentification
+    // réussie (voir onAuthStateChanged plus haut), pas ici — monPseudoKey n'existe
+    // qu'une fois l'utilisateur connecté.
   </script>
 
     <style>
@@ -2349,6 +2758,223 @@
                 font-size: 0.78rem;
             }
         }
+
+    /* === AUTH SCREEN === */
+    #authScreen {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      z-index: 1000;
+    }
+
+    #authScreen.hidden { display: none; }
+
+    .auth-container {
+      background: white;
+      padding: 40px;
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      width: 90%;
+      max-width: 380px;
+      text-align: center;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .auth-container h1 {
+      margin: 0 0 10px 0;
+      font-size: 1.6rem;
+      color: #333;
+    }
+
+    .auth-container p {
+      color: #666;
+      margin-bottom: 24px;
+      font-size: 0.95rem;
+    }
+
+    .auth-google-btn {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 12px;
+      background: white;
+      color: #444;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: box-shadow 0.2s, transform 0.2s;
+    }
+
+    .auth-google-btn:hover {
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      transform: translateY(-1px);
+    }
+
+    .auth-divider {
+      display: flex;
+      align-items: center;
+      text-align: center;
+      color: #999;
+      font-size: 0.85rem;
+      margin: 18px 0;
+    }
+
+    .auth-divider::before,
+    .auth-divider::after {
+      content: '';
+      flex: 1;
+      border-bottom: 1px solid #eee;
+    }
+
+    .auth-divider span {
+      padding: 0 10px;
+    }
+
+    .auth-tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #eee;
+    }
+
+    .auth-tab-btn {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      background: none;
+      cursor: pointer;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #999;
+      border-bottom: 3px solid transparent;
+      transition: all 0.3s;
+    }
+
+    .auth-tab-btn.active {
+      color: #667eea;
+      border-bottom-color: #667eea;
+    }
+
+    .auth-form { display: none; text-align: left; }
+    .auth-form.active { display: block; }
+
+    .auth-form input {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 12px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 1rem;
+      box-sizing: border-box;
+    }
+
+    .auth-form input:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .auth-form button {
+      width: 100%;
+      padding: 12px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .auth-form button:hover { transform: translateY(-2px); }
+
+    .auth-feedback {
+      margin-top: 12px;
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      display: none;
+      text-align: center;
+    }
+
+    .auth-feedback.error { background: #fee; color: #c33; display: block; }
+    .auth-feedback.success { background: #efe; color: #3c3; display: block; }
+
+    /* === VUES MULTIPLES DE L'ÉCRAN AUTH (principale / invité) === */
+    .auth-view { display: none; }
+    .auth-view.active { display: block; }
+
+    .auth-guest-link {
+      background: none;
+      border: none;
+      color: #667eea;
+      text-decoration: underline;
+      cursor: pointer;
+      margin-top: 18px;
+      font-size: 0.85rem;
+      display: block;
+      width: 100%;
+      text-align: center;
+    }
+
+    .auth-warning-text {
+      color: #c0392b;
+      font-weight: 700;
+      font-size: 1rem;
+      line-height: 1.4;
+    }
+
+    .auth-guest-choice {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .auth-guest-choice button {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .auth-guest-choice button:hover { transform: translateY(-2px); }
+
+    .auth-guest-yes {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .auth-guest-no {
+      background: #eee;
+      color: #555;
+    }
+
+
+    .auth-logout-btn {
+      background: #eee !important;
+      color: #666 !important;
+    }
+
+    @media (max-width: 600px) {
+      .auth-container { padding: 28px 20px; max-width: 95%; }
+      .auth-container h1 { font-size: 1.35rem; }
+    }
     </style>
 
     <!-- Élément Audio caché -->
@@ -2481,6 +3107,10 @@
     <button class="reset-btn" id="reset">Réinitialiser</button>
 
     <script>
+      // Le contenu du jeu est enveloppé dans initGame() : il ne démarre
+      // qu'une fois l'utilisateur authentifié et sa progression rechargée
+      // depuis le cloud (voir onAuthStateChanged plus haut).
+      function initGame() {
         //son taco bell
         const resetSound = document.getElementById('resetSound');
         const antiCheatSound = document.getElementById('antiCheatSound');
@@ -2580,6 +3210,8 @@
             localStorage.setItem('caillou_collector_week', collectorWeaponWeek || '');
             localStorage.setItem('caillou_owned_skins', JSON.stringify(ownedSkins));
             localStorage.setItem('caillou_equipped_skin', equippedSkin);
+            // Sync cloud (au maximum 1 fois toutes les 15s, voir sauvegarderProgressionCloud)
+            if (currentUser) sauvegarderProgressionCloud(currentUser.uid);
         }
 
         function clearCollectorWeapon() {
@@ -2962,6 +3594,12 @@
         const skipLeaderboardBtn = document.getElementById('skipLeaderboardBtn');
         let leaderboardTop3Map = new Map();
 
+        // Suivi de l'écouteur Firebase actif : permet de le reconnecter à la
+        // bonne semaine si l'onglet reste ouvert pendant le passage à une
+        // nouvelle semaine (sinon l'affichage resterait bloqué sur l'ancienne).
+        let leaderboardListenerRef = null;
+        let leaderboardListenerWeekKey = null;
+
         function getWeekStart(date = new Date()) {
             const d = new Date(date);
             const day = d.getDay();
@@ -3004,12 +3642,14 @@
         }
 
         function openLeaderboardModal() {
-            // Afficher la boîte de rejoindre seulement si le joueur n'a pas déjà rejoint
-            if (isJoinedForCurrentWeek()) {
-                leaderboardJoinBox.style.display = 'none';
-            } else {
-                leaderboardJoinBox.style.display = 'block';
-            }
+            // Le message "rejoindre" ne doit apparaître QUE si le classement est
+            // ouvert (lundi-vendredi), jamais le week-end même si le joueur n'a
+            // pas encore rejoint.
+            const weekKey = getWeekKey();
+            const shouldShowJoin = isLeaderboardOpen()
+                && !isJoinedForCurrentWeek()
+                && localStorage.getItem('caillou_leaderboard_skip_week') !== weekKey;
+            leaderboardJoinBox.style.display = shouldShowJoin ? 'block' : 'none';
             leaderboardRulesBox.style.display = 'none';
             leaderboardModal.classList.add('open');
         }
@@ -3127,12 +3767,24 @@
 
         function refreshLeaderboard() {
             const weekKey = getWeekKey();
-            const activeRef = database.ref(`leaderboard/${weekKey}/entries`);
-            activeRef.on('value', (snapshot) => {
-                const raw = snapshot.val() || {};
-                const entries = Object.values(raw);
-                updateLeaderboardUI(entries);
-            });
+
+            // Si la semaine a changé depuis le dernier appel, on détache
+            // l'ancien écouteur (semaine précédente) et on se reconnecte au
+            // chemin de la nouvelle semaine — sinon l'affichage resterait
+            // bloqué sur les données de l'ancienne semaine si la page reste
+            // ouverte pendant la transition.
+            if (leaderboardListenerWeekKey !== weekKey) {
+                if (leaderboardListenerRef) {
+                    leaderboardListenerRef.off('value');
+                }
+                leaderboardListenerRef = database.ref(`leaderboard/${weekKey}/entries`);
+                leaderboardListenerRef.on('value', (snapshot) => {
+                    const raw = snapshot.val() || {};
+                    const entries = Object.values(raw);
+                    updateLeaderboardUI(entries);
+                });
+                leaderboardListenerWeekKey = weekKey;
+            }
 
             leaderboardStatusText.textContent = getLeaderboardMetaText();
             const shouldShowJoin = isLeaderboardOpen() && !isJoinedForCurrentWeek() && localStorage.getItem('caillou_leaderboard_skip_week') !== weekKey;
@@ -3266,7 +3918,11 @@
                 leaderboardRulesBox.style.display = 'block';
             }
             handleWeeklyResetAndRewards();
+            // Reconnecte l'écouteur à la semaine actuelle si elle a changé
+            // (couvre le cas d'un onglet resté ouvert pendant la transition).
+            refreshLeaderboard();
         }, 60000);
+      } // fin de initGame()
    </script>
 
 
