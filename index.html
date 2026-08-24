@@ -2981,6 +2981,9 @@
     <audio id="lightModeSound" src="son.mp3" preload="auto"></audio>
     <audio id="resetSound" src="taco-bell-bong-sfx.mp3" preload="auto"></audio>
     <audio id="antiCheatSound" src="anticheat.mp3" preload="auto" loop></audio>
+    <audio id="bgMusic" preload="auto" loop>
+        <source src="velvet-sonata.mp3" type="audio/mpeg">
+    </audio>
 
     <!-- Message de l'Easter Egg -->
     <div class="easter-egg-msg" id="easterEgg">WOW TU CLIQUES VITE !!!</div>
@@ -3925,6 +3928,40 @@
       } // fin de initGame()
    </script>
 
+
+    <script>
+      // Musique de fond : démarre dès le premier clic/tap de l'utilisateur
+      // n'importe où sur l'écran (contourne le blocage autoplay des navigateurs).
+      (function() {
+        const bgMusic = document.getElementById('bgMusic');
+        if (!bgMusic) return;
+
+        bgMusic.volume = 0.5;
+
+        // Diagnostic : si le fichier ne peut pas être chargé (mauvais chemin,
+        // fichier absent/pas encore synchronisé, etc.), on le voit ici avec
+        // le code d'erreur exact au lieu d'un simple "bloqué".
+        bgMusic.addEventListener('error', () => {
+          const codes = { 1: 'ABORTED', 2: 'NETWORK', 3: 'DECODE', 4: 'SRC_NOT_SUPPORTED (fichier introuvable ou format non lisible)' };
+          const err = bgMusic.error;
+          console.log('Erreur de chargement bgMusic :', err ? (codes[err.code] || err.code) : err, '- src attendu :', bgMusic.currentSrc);
+        });
+
+        let started = false;
+        function startBgMusic() {
+          if (started) return;
+          started = true;
+          bgMusic.play().catch(err => console.log("Musique de fond bloquée :", err));
+          document.removeEventListener('click', startBgMusic);
+          document.removeEventListener('touchstart', startBgMusic);
+          document.removeEventListener('keydown', startBgMusic);
+        }
+
+        document.addEventListener('click', startBgMusic);
+        document.addEventListener('touchstart', startBgMusic);
+        document.addEventListener('keydown', startBgMusic);
+      })();
+    </script>
 
     <script defer src="/_vercel/insights/script.js"></script>
 </body>
