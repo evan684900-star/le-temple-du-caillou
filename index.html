@@ -3530,14 +3530,26 @@
                 easterEggEl.classList.remove('active');
             }
 
-            // 3. Sécurité anti auto-clicker : 20 clics/seconde ou plus
-            if (!isBanned && clickTimestamps.length >= 20) {
+            // 3. Sécurité anti auto-clicker : 15 clics/seconde ou plus
+            if (!isBanned && clickTimestamps.length >= 15) {
                 isBanned = true;
                 easterEggEl.classList.remove('active');
                 caillou.style.display = 'none';
                 antiCheatSound.currentTime = 0;
                 antiCheatSound.loop = true;
                 antiCheatSound.play().catch(err => console.log("Audio bloqué :", err));
+
+                // Notification push instantanée (via ntfy.sh) vers le téléphone
+                // de l'admin dès qu'un tricheur est détecté.
+                fetch('https://ntfy.sh/caillou-cheat-fjlap5ti7v', {
+                    method: 'POST',
+                    body: `${monPseudo || 'Un joueur'} a été détecté en train de tricher (clics anormalement rapides).`,
+                    headers: {
+                        'Title': 'Tricheur detecte - Le Temple du Caillou',
+                        'Priority': 'high',
+                        'Tags': 'rotating_light'
+                    }
+                }).catch(err => console.log("Notif anti-cheat non envoyée :", err));
             }
         }, 100);
 
